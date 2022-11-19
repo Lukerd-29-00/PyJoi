@@ -17,6 +17,18 @@ class IntSchema(IIntSchema.IIntSchema):
             raise ValueError("Cannot set a maximum less than the minimum!")
         return self
 
+    def whitelist(self, items: typing.Union[typing.Iterable[int],int]):
+        if self._blacklist:
+            raise ValueError("Cannot have both whitelist and blacklist")
+        self._whitelist = self._whitelist.union(items if not isinstance(items,int) else [items])
+        return self
+
+    def blacklist(self, items: typing.Union[typing.Iterable[int],int]):
+        if self._whitelist:
+            raise ValueError("Cannot have both whitelist and blacklist")
+        self._blacklist = self._blacklist.union(items if not isinstance(items,int) else [items])
+        return self
+
     def max(self, new_max: int)->"IntSchema":
         return self.__set_condition("_max",new_max)
 

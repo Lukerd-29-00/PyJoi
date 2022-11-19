@@ -6,6 +6,26 @@ class IStringSchema(PrimitiveSchema[str],abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
+    def whitelist(self, item: str)->"IStringSchema":
+        pass
+
+    @typing.overload
+    @abc.abstractmethod
+    def whitelist(self, items: typing.Iterable[str])->"IStringSchema":
+        pass
+
+    @typing.overload
+    @abc.abstractmethod
+    def blacklist(self, item: str)->"IStringSchema":
+        pass
+
+    @typing.overload
+    @abc.abstractmethod
+    def blacklist(self, items: typing.Iterable[str])->"IStringSchema":
+        pass
+
+    @typing.overload
+    @abc.abstractmethod
     def whitelist_patterns(self, pattern: str)->"IStringSchema":
         """Whitelist a regular expression."""
         pass

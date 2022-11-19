@@ -47,14 +47,16 @@ class StringSchema(IStringSchema):
         return value
 
     def whitelist(self,items: typing.Union[str,typing.Iterable[str]])->"StringSchema":
-        if self.__blacklist_regexes:
-            raise ValueError("Cannot set a whitelist if a blacklist is present!")
-        return super(StringSchema,self).whitelist(items)
+        if self._blacklist or self.__blacklist_regexes:
+            raise ValueError("Cannot set a blacklist if a whitelist is present!")
+        self._whitelist = self._whitelist.union(items if not isinstance(str,items) else [items])
+        return super(StringSchema,self).whitelist(items,str)
 
     def blacklist(self, items: typing.Union[str,typing.Iterable[str]])->"StringSchema":
-        if self.__whitelist_regexes:
+        if self._whitelist or self.__whitelist_regexes:
             raise ValueError("Cannot set a blacklist if a whitelist is present!")
-        return super(StringSchema,self).blacklist(items)
+        self._blacklist = self._blacklist.union(items if not isinstance(str,items) else [items])
+        return self
 
     def whitelist_patterns(self, patterns: typing.Union[str,typing.Iterable[str]])->"StringSchema":
         if self._blacklist or self.__blacklist_regexes:

@@ -1,7 +1,28 @@
 import abc
 from .. import PrimitiveSchema
+import typing
 
 class IIntSchema(PrimitiveSchema[int],abc.ABC):
+    @typing.overload
+    @abc.abstractmethod
+    def whitelist(self,item: int)->"IIntSchema":
+        pass
+
+    @typing.overload
+    @abc.abstractmethod
+    def whitelist(self,item: typing.Iterable[int])->"IIntSchema":
+        pass
+
+    @typing.overload
+    @abc.abstractmethod
+    def blacklist(self,item: int)->"IIntSchema":
+        pass
+
+    @typing.overload
+    @abc.abstractmethod
+    def blacklist(self,item: typing.Iterable[int])->"IIntSchema":
+        pass
+
     @abc.abstractmethod
     def max(self,new_max: int)->"IIntSchema":
         pass
