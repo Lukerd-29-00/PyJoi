@@ -13,20 +13,8 @@ class Schema(typing.Generic[T],AbstractSchema[T]):
     name: typing.Optional[str]
     required: bool
 
-    @typing.overload
-    def __init__(self, required: bool = True):
-        """Instantiate with some parent schema"""
-        pass
-
-    @typing.overload
-    def __init__(self,name: str, required: bool = True, **kwargs: typing.Dict[str,"AbstractSchema"]):
-        """Instantiate a schema with a name and the schema's shape."""
-        pass
-
     def __init__(self, name: typing.Optional[str] = None, required: bool = True, **kwargs: typing.Optional[typing.Dict[str,"Schema"]]):
-        if name == None and kwargs:
-            raise TypeError("Must have a name to add keyword arguments!")
-        elif kwargs:
+        if kwargs:
             self.__nt = collections.namedtuple(name,kwargs.keys())
             self._fields = dict(kwargs)
             for k in self._fields.keys():
