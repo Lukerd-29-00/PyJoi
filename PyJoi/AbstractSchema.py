@@ -20,7 +20,7 @@ class AbstractSchema(abc.ABC):
 
     def string(self):
         """Create a string schema."""
-        from .Primitive.String import StringSchema
+        from .Primitive.String.StringSchema import StringSchema
         return StringSchema(self.name,required=self.required)
 
     def int(self):
@@ -44,10 +44,10 @@ class AbstractSchema(abc.ABC):
         """Validate some input using this schema."""
         pass
 
-    @abc.abstractmethod
     def optional(self)->"AbstractSchema":
         """Indicates that this field is optional. An optional Schema will also accept empty objects. Any missing fields will be assigned to None."""
-        pass
+        self.required = False
+        return self
 
     def __hash__(self)->int:
         return hash(self.name)

@@ -76,7 +76,6 @@ class IStringSchema(PrimitiveSchema[str],abc.ABC):
         """Match hex strings; expects an even-length of a-f0-9"""
         pass
 
-    @abc.abstractmethod
     def optional(self)->"IStringSchema":
         """Indicates that this string is optional."""
-        pass
+        return super(IStringSchema,self).optional()

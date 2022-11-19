@@ -10,7 +10,8 @@ class PrimitiveSchema(AbstractSchema.AbstractSchema,abc.ABC,typing.Generic[T]):
     _whitelist: typing.Set[T]
 
     def __init__(self,name: str, required: bool = True):
-        super(PrimitiveSchema,self).__init__(name,required)
+        self.required = required
+        self.name = name
         self._blacklist = set()
         self._whitelist = set()
 

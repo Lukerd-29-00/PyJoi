@@ -21,7 +21,7 @@ if __name__ == "__main__":
         ).optional(),
         b=Schema("b").int().positive()
     )
-    t = schema.validate({"s": "ab", "b": -1})
+    t = schema.validate({"s": "ab", "b": 0})
     print(t.s)
     print(t.a)
     print(t.b)

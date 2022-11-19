@@ -91,7 +91,7 @@ class StringSchema(IStringSchema):
     def hex(self)->"StringSchema":
         if self.__len != None and self.__len % 2 == 1:
             raise ValueError("Cannot require hex from an odd-length string!")
-        elif self._PrimitiveSchema__blacklist or self.__blacklist_regexes:
+        elif self._blacklist or self.__blacklist_regexes:
             raise ValueError("Cannot set a whitelist pattern if a blacklist is present!")
         self.__whitelist_regexes.add(HexPattern)
         return self

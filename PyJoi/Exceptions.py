@@ -24,10 +24,6 @@ class InvalidTypeException(ValidationException,abc.ABC):
     """Thrown if the value provided does not match the schema's type."""
     pass
 
-class NonObjectErrorException(ValidationException):
-    """Thrown by Schema.validate if the value provided is not a Dict."""
-    pass
-
 class EmptyObjectException(EmptyElementException):
     """Thrown if a Schema object is passed an empty Dict to validate()."""
     pass
@@ -46,4 +42,8 @@ class ObjectIncorrectKeyException(InvalidElementException):
 
 class ObjectContainsWrongTypeException(ObjectMissingKeyException):
     """Thrown by Schema.validate if a key is mapped to a value of the wrong type."""
+    pass
+
+class NotAnObjectException(InvalidTypeException):
+    """Thrown by Schema.validate if the value provided is not a Dict."""
     pass

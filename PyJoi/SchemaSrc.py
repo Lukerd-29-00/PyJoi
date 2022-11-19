@@ -19,20 +19,16 @@ class Schema(AbstractSchema):
         if object == None and not self.required:
             return None
         elif object == None:
-            raise Exceptions.MissingElement(self.name,"missing required object")
+            raise Exceptions.MissingObjectException(self.name,"missing required object")
         elif not isinstance(object,typing.Dict):
-            raise Exceptions.ValidationError(self.name,"expected to be associated with an object but encountered something else.")
+            raise Exceptions.NotAnObjectException(self.name,"expected to be associated with an object but encountered something else.")
         try:
             data = dict([(key, self.__fields[key].validate(None if object is None or not key in object.keys() else object[key])) for key in self.__fields.keys()])
-        except Exceptions.ValidationError as V:
-            raise Exceptions.ValidationError(f"{self.name}.{V.name}",V.vmessage)
+        except Exceptions.ValidationException as V:
+            raise type(V)(f"{self.name}.{V.name}",V.vmessage)
         s = set(data.values())
         if len(s) == 1 and None in s and not self.required:
             return None
         elif len(s) == 1 and None in s:
-            raise Exceptions.ValidationError(self.name,"Required object is empty.")
+            raise Exceptions.EmptyObjectException(self.name,"Required object is empty.")
         return self.__nt(**data)
-
-    def optional(self)->"Schema":
-        self.required = False
-        return self
