@@ -1,13 +1,18 @@
 import unittest
 import PyJoi
-from PyJoi.Primitive import String
 import typing
+
+class testtup(typing.NamedTuple):
+    value: typing.Optional[str]
 
 class TestStringSchema(unittest.TestCase):
 
     def test_optional_accepts_none(self):
-        class testtup(typing.NamedTuple):
-            value: typing.Optional[str]
         s = PyJoi.Schema[testtup]("s",value=PyJoi.Schema("value").string().optional()).optional()
-        validated = s.validate({})
+        validated = s.validate(None)
+        self.assertIsNone(validated)
+
+    def test_optional_accepts_empty(self):
+        s = PyJoi.Schema[testtup]("s",value=PyJoi.Schema("value").string().optional()).optional()
+        validated = s.validate(None)
         self.assertIsNone(validated)
