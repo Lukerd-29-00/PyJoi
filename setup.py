@@ -7,4 +7,4 @@ setup = setuptools.setup(name="PyJoi",
     author="Lucas Driscoll",
     author_email="lukerdriscoll@gmail.com",
     packages=["PyJoi"]
-)h
+)
