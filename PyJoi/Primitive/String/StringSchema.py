@@ -12,8 +12,8 @@ class StringSchema(IStringSchema):
     __whitelist_regexes: typing.Set[re.Pattern]
     __blacklist_regexes: typing.Set[re.Pattern]
 
-    def __init__(self, name: str, required: bool = True):
-        super(StringSchema,self).__init__(name,required)
+    def __init__(self, name: typing.Optional[str], required: bool = True):
+        super(StringSchema,self).__init__(name,required=required)
         self.__whitelist_regexes = set()
         self.__blacklist_regexes = set()
 

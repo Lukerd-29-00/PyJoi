@@ -9,13 +9,13 @@ import collections
 
 T = typing.TypeVar("T",bound=typing.NamedTuple)
 class Schema(typing.Generic[T],AbstractSchema[T]):
-    __fields: typing.Optional[typing.Dict[str,"Schema"]] = None
-    name: str
+    _fields: typing.Optional[typing.Dict[str,"Schema"]] = None
+    name: typing.Optional[str]
     required: bool
 
     @typing.overload
-    def __init__(self, name: str, required: bool = True):
-        """Instantiate with the name and optional required parameter."""
+    def __init__(self, required: bool = True):
+        """Instantiate with some parent schema"""
         pass
 
     @typing.overload
@@ -23,16 +23,20 @@ class Schema(typing.Generic[T],AbstractSchema[T]):
         """Instantiate a schema with a name and the schema's shape."""
         pass
 
-    def __init__(self, name: str, required: bool = True, **kwargs: typing.Optional[typing.Dict[str,"Schema"]]):
-        if kwargs:
+    def __init__(self, name: typing.Optional[str] = None, required: bool = True, **kwargs: typing.Optional[typing.Dict[str,"Schema"]]):
+        if name == None and kwargs:
+            raise TypeError("Must have a name to add keyword arguments!")
+        elif kwargs:
             self.__nt = collections.namedtuple(name,kwargs.keys())
-            self.__fields = dict(kwargs)
+            self._fields = dict(kwargs)
+            for k in self._fields.keys():
+                self._fields[k].name = k
         self.required = required
         self.name = name
 
     def string(self)->StringSchema:
         """Create a string schema."""
-        if self.__fields != None:
+        if self._fields != None:
             raise ValueError("Cannot create string schema from an object schema with parameters!")
         return StringSchemaConstructor(self.name,required=self.required)
 
@@ -48,7 +52,7 @@ class Schema(typing.Generic[T],AbstractSchema[T]):
         elif not isinstance(object,typing.Dict):
             raise Exceptions.NotAnObjectException(self.name,"expected to be associated with an object but encountered something else.")
         try:
-            data = dict([(key, self.__fields[key].validate(None if object is None or not key in object.keys() else object[key])) for key in self.__fields.keys()])
+            data = dict([(key, self._fields[key].validate(None if object is None or not key in object.keys() else object[key])) for key in self._fields.keys()])
         except Exceptions.ValidationException as V:
             raise type(V)(f"{self.name}.{V.name}",V.vmessage)
         s = set(data.values())

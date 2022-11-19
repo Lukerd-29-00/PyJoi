@@ -5,14 +5,15 @@ class AbstractSchema(abc.ABC,typing.Generic[T]):
     name: str
     required: bool
 
+    @typing.overload
     @abc.abstractmethod
-    def __init__(self,name: str, required: bool = True):
-        """Instantiate a Schema with just a name"""
+    def __init__(self, required: bool = True):
+        """Instantiate a Schema as part of another Schema."""
         pass
 
+    @typing.overload
     @abc.abstractmethod
-    def optional(self)->"AbstractSchema":
-        """Indicate that this field is not required for the input to be valid."""
+    def __init__(self,name: str, required: bool = True):
         pass
 
     @typing.overload

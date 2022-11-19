@@ -9,9 +9,9 @@ class PrimitiveSchema(AbstractSchema.AbstractSchema,abc.ABC,typing.Generic[T]):
     _blacklist: typing.Set[T]
     _whitelist: typing.Set[T]
 
-    def __init__(self,name: str, required: bool = True):
-        self.required = required
+    def __init__(self,name: typing.Optional[str], required: bool = True):
         self.name = name
+        self.required = required
         self._blacklist = set()
         self._whitelist = set()
 

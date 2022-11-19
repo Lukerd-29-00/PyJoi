@@ -25,7 +25,7 @@ class NoWhiteListException(Exceptions.NonWhiteListedValueException):
 class TooShortException(IncorrectLengthException):
     pass
 
-class TooLongExceptionException(IncorrectLengthException):
+class TooLongException(IncorrectLengthException):
     pass
 
 class NonMatchingLengthException(IncorrectLengthException):
