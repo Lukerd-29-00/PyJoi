@@ -17,7 +17,7 @@ class StringSchema(IStringSchema):
         self.__whitelist_regexes = set()
         self.__blacklist_regexes = set()
 
-    def validate(self, value: any)->str:
+    def validate(self, value: any)->typing.Optional[str]:
         if value == None and not self.required:
             return value
         elif value == None:

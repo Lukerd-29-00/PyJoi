@@ -3,34 +3,6 @@ import abc
 from .. import PrimitiveSchema
 
 class IStringSchema(PrimitiveSchema[str],abc.ABC):
-    @abc.abstractmethod
-    def validate(self, value: any)->str:
-        """Validate the value with this schema to check if it matches. Returns the value if it matches."""
-        pass
-
-    @typing.overload
-    @abc.abstractmethod
-    def whitelist(self, item: str)->"IStringSchema":
-        """Whitelist a string for this schema."""
-        pass
-    
-    @typing.overload
-    @abc.abstractmethod
-    def whitelist(self, items: typing.Iterable[str])->"IStringSchema":
-        """Whitelist multiple strings for this schema."""
-        pass
-
-    @typing.overload
-    @abc.abstractmethod
-    def blacklist(self, item: str)->"IStringSchema":
-        """Blacklist a string for this schema."""
-        pass
-
-    @typing.overload
-    @abc.abstractmethod
-    def blacklist(self, items: typing.Iterable[str])->"IStringSchema":
-        """blacklist several strings for this schema."""
-        pass
 
     @typing.overload
     @abc.abstractmethod

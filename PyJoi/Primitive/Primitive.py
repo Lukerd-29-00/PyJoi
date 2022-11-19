@@ -16,7 +16,7 @@ class PrimitiveSchema(AbstractSchema.AbstractSchema,abc.ABC,typing.Generic[T]):
         self._whitelist = set()
 
     @abc.abstractmethod
-    def validate(self,value: any)->T:
+    def validate(self,value: any)->typing.Optional[T]:
         pass
 
     @typing.overload

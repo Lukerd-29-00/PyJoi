@@ -40,7 +40,7 @@ class IntSchema(IIntSchema.IIntSchema):
         self.__set_condition("_max",65535)
         return self.__set_condition("_min",1024)
 
-    def validate(self,value: any)->int:
+    def validate(self,value: any)->typing.Optional[int]:
         if value == None and not self.required:
             return None
         elif value == None:
