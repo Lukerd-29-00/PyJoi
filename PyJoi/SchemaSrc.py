@@ -1,12 +1,27 @@
 import typing
 from . import Exceptions
 from .AbstractSchema import AbstractSchema
+from .Primitive.String.StringSchema import StringSchema as StringSchemaConstructor
+from .Primitive.String import StringSchema
+from .Primitive.Int.IntSchema import IntSchema as IntSchemaConstructor
+from .Primitive.Int import IntSchema
 import collections
 
-class Schema(AbstractSchema):
+T = typing.TypeVar("T",bound=typing.NamedTuple)
+class Schema(typing.Generic[T],AbstractSchema[T]):
     __fields: typing.Optional[typing.Dict[str,"Schema"]] = None
     name: str
     required: bool
+
+    @typing.overload
+    def __init__(self, name: str, required: bool = True):
+        """Instantiate with the name and optional required parameter."""
+        pass
+
+    @typing.overload
+    def __init__(self,name: str, required: bool = True, **kwargs: typing.Dict[str,"AbstractSchema"]):
+        """Instantiate a schema with a name and the schema's shape."""
+        pass
 
     def __init__(self, name: str, required: bool = True, **kwargs: typing.Optional[typing.Dict[str,"Schema"]]):
         if kwargs:
@@ -15,7 +30,17 @@ class Schema(AbstractSchema):
         self.required = required
         self.name = name
 
-    def validate(self,object: typing.Dict[str,any])->typing.NamedTuple:
+    def string(self)->StringSchema:
+        """Create a string schema."""
+        if self.__fields != None:
+            raise ValueError("Cannot create string schema from an object schema with parameters!")
+        return StringSchemaConstructor(self.name,required=self.required)
+
+    def int(self)->IntSchema:
+        """Create an int schema."""
+        return IntSchemaConstructor(self.name,required=self.required)
+
+    def validate(self,object: typing.Dict[str,any])->typing.Optional[T]:
         if object == None and not self.required:
             return None
         elif object == None:
