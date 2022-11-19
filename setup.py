@@ -6,5 +6,5 @@ setup = setuptools.setup(name="PyJoi",
     long_description="An input validator for Python modeled on the Javascript Joi library. Inspired by Donttrust, but has a lot more functionality.",
     author="Lucas Driscoll",
     author_email="lukerdriscoll@gmail.com",
-    packages=["src"]
+    packages=["PyJoi"]
 )
