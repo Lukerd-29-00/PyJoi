@@ -57,3 +57,14 @@ class IStringSchema(PrimitiveSchema[str],abc.ABC):
     def optional(self)->"IStringSchema":
         """Indicates that this string is optional."""
         return super(IStringSchema,self).optional()
+
+    def base64(self)->"IBase64Schema":
+        pass
+
+class IBase64Schema(IStringSchema):
+
+    def unpadded(self)->"IBase64Schema":
+        pass
+    
+    def urlsafe(self)->"IBase64Schema":
+        pass

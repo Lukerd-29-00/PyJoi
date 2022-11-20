@@ -9,7 +9,11 @@ class InvalidStringException(Exceptions.InvalidPrimitiveElementException,abc.ABC
     """Thrown if a string is provided that does not match the schema."""
     pass
 
-class NotHexException(InvalidStringException):
+class InvalidBase64Exception(InvalidStringException):
+    """Thrown if the input does not match the desired base 64 schema"""
+    pass
+
+class InvalidHexException(InvalidStringException):
     pass
 
 class NotAStringException(Exceptions.InvalidPrimitiveTypeException):

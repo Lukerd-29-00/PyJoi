@@ -61,7 +61,7 @@ class TestStringSchema(unittest.TestCase):
     def test_hex(self):
         s = PyJoi.Schema().string().hex()
         self.assertEqual(s.validate(b'\x00\xef'.hex()),b'\x00\xef'.hex())
-        with self.assertRaises(Exceptions.NotHexException):
+        with self.assertRaises(Exceptions.InvalidHexException):
             s.validate('hi')
     
     def test_whitelist_regex(self):
@@ -75,3 +75,45 @@ class TestStringSchema(unittest.TestCase):
         self.assertEqual(s.validate("by"),"by")
         with self.assertRaises(Exceptions.MatchesBlackistException):
             s.validate("ax")
+
+    def test_padded_base64(self):
+        s = PyJoi.Schema().string().base64()
+        self.assertEqual(s.validate("AB/+"),"AB/+")
+        self.assertEqual(s.validate("ABCDaA=="),"ABCDaA==")
+        self.assertEqual(s.validate("ABCDaXQ="),"ABCDaXQ=")
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate('Èb==') #Sanity check
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("ABCDA") #Check that a string of length 1 mod 4 is rejected.
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("-BCDaXQ=") #Check that - is not allowed.
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("_BCDaXQ=") #Check that _ is not allowed.
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("ABCDab") #Check that padding is required.
+        self.assertEqual(s.urlsafe().validate("AB-_"),"AB-_")
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("+B-_") #Check that + is not allowed.
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("/B-_") #Check that / is not allowed.
+        
+    def test_unpadded_base64(self):
+        s = PyJoi.Schema().string().base64().unpadded()
+        self.assertEqual(s.validate("AB/+"),"AB/+")
+        self.assertEqual(s.validate("ABCDaA"),"ABCDaA")
+        self.assertEqual(s.validate("ABCDaXQ"),"ABCDaXQ")
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate('Èw') #Basic sanity check
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("ABCDA") #Check that a string of length 1 mod 4 is rejected.
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("-BCDAA") #Test that - is not allowed
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("_BCDAA") #Test that _ is not allowed
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("ABCDaA==") #Test that padding is not allowed
+        self.assertEqual(s.urlsafe().validate("AB-_"),"AB-_")
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("/BCD")
+        with self.assertRaises(Exceptions.InvalidBase64Exception):
+            s.validate("+BCD")

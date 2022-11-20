@@ -5,6 +5,12 @@ from .IStringSchema import IStringSchema
 
 HexPattern = re.compile(r"^(?:[a-f0-9][a-f0-9])*$")
 
+PaddedB64Pattern = re.compile(r"^(?:[A-Za-z0-9\+/]{4})*(?:[A-Za-z0-9\+/]{2}[A-Za-z0-9\+/=]{2})?$")
+UnpaddedB64Pattern = re.compile(r"^(?:[A-Za-z0-9\+/]{4})*(?:[A-Za-z0-9\+/]{2,3})?$")
+
+PaddedUrlSafeB64Pattern = re.compile(r"^(?:[A-Za-z0-9\-_]{4})*(?:[A-Za-z0-9\-_]{2}[A-Za-z0-9\-_=]{2})?$")
+UnPaddedUrlSafeB64Pattern = re.compile(r"^(?:[A-Za-z0-9\-_]{4})*(?:[A-Za-z0-9\-_]{2,3})?$")
+
 class StringSchema(IStringSchema):
     __min_len: typing.Optional[int] = None
     __max_len: typing.Optional[int] = None
@@ -33,7 +39,7 @@ class StringSchema(IStringSchema):
         elif self.__whitelist_regex and re.match(self.__whitelist_regex,value) == None:
             raise Exceptions.NoWhiteListException(self.name,f"{value} fails to match whitelist pattern {self.__whitelist_regex.pattern}")
         elif self.__hex and re.match(HexPattern,value) == None:
-            raise Exceptions.NotHexException(self.name,f"{value} is not a hexadecimal string.")
+            raise Exceptions.InvalidHexException(self.name,f"{value} is not a hexadecimal string.")
         return value
 
     def whitelist(self,items: typing.Union[str,typing.Iterable[str]])->"StringSchema":
@@ -83,9 +89,37 @@ class StringSchema(IStringSchema):
         return self
 
     def hex(self)->"StringSchema":
-        if self.__len != None and self.__len % 2 == 1:
-            raise ValueError("Cannot require hex from an odd-length string!")
-        elif self._blacklist or self.__blacklist_regex:
-            raise ValueError("Cannot set a whitelist pattern if a blacklist is present!")
         self.__hex = True
         return self
+
+    def base64(self)->"Base64Schema":
+        return Base64Schema(self.name,self.required)
+
+class Base64Schema(StringSchema):
+    __padded: bool = True
+    __urlsafe: bool = False
+
+    def base64(self):
+        raise ValueError("This is already base 64!")
+    
+    def urlsafe(self):
+        self.__urlsafe = True
+        return self
+    
+    def unpadded(self):
+        self.__padded = False
+        return self
+
+    def validate(self,value: any)->typing.Optional[str]:
+        value = super(Base64Schema,self).validate(value)
+        if value == None:
+            return value
+        elif self.__padded and self.__urlsafe and re.match(PaddedUrlSafeB64Pattern,value) == None:
+            raise Exceptions.InvalidBase64Exception(self.name,f"{value} is invalid urlsafe base64")
+        elif self.__padded and not self.__urlsafe and re.match(PaddedB64Pattern,value) == None:
+            raise Exceptions.InvalidBase64Exception(self.name,f"{value} is invalid base64")
+        elif not self.__padded and self.__urlsafe and re.match(UnPaddedUrlSafeB64Pattern,value) == None:
+            raise Exceptions.InvalidBase64Exception(self.name,f"{value} is invalid unpadded urlsafe base64")
+        elif not self.__padded and not self.__urlsafe and re.match(UnpaddedB64Pattern,value) == None:
+            raise Exceptions.InvalidBase64Exception(self.name,f"{value} is invalid unpadded base64")
+        return value
