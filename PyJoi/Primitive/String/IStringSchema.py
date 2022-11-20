@@ -1,28 +1,7 @@
-import typing
 import abc
 from .. import PrimitiveSchema
 
 class IStringSchema(PrimitiveSchema[str],abc.ABC):
-
-    @typing.overload
-    @abc.abstractmethod
-    def whitelist(self, item: str)->"IStringSchema":
-        pass
-
-    @typing.overload
-    @abc.abstractmethod
-    def whitelist(self, items: typing.Iterable[str])->"IStringSchema":
-        pass
-
-    @typing.overload
-    @abc.abstractmethod
-    def blacklist(self, item: str)->"IStringSchema":
-        pass
-
-    @typing.overload
-    @abc.abstractmethod
-    def blacklist(self, items: typing.Iterable[str])->"IStringSchema":
-        pass
 
     @abc.abstractmethod
     def whitelist_pattern(self, pattern: str)->"IStringSchema":
@@ -61,10 +40,12 @@ class IStringSchema(PrimitiveSchema[str],abc.ABC):
     def base64(self)->"IBase64Schema":
         pass
 
-class IBase64Schema(IStringSchema):
+class IBase64Schema(IStringSchema,abc.ABC):
 
+    @abc.abstractmethod
     def unpadded(self)->"IBase64Schema":
         pass
     
+    @abc.abstractmethod
     def urlsafe(self)->"IBase64Schema":
         pass

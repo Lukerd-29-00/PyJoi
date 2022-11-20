@@ -16,7 +16,7 @@ class EmptyElementException(ValidationException,abc.ABC):
     """Thrown if an element is not None but is empty (e.g. {} or []). Note that a dict with no recognized keys will also be considered "empty"."""
     pass
 
-class MissingElementException(ValidationException,abc.ABC):
+class MissingElementException(ValidationException):
     """Thrown if an element that was expected was either missing or null."""
     pass
 

@@ -2,11 +2,11 @@ import unittest
 import PyJoi
 from PyJoi.Primitive.String import Exceptions
 from PyJoi.Primitive import Exceptions as PrimitiveExceptions
-
+from PyJoi import Exceptions as TopExceptions
 class TestStringSchema(unittest.TestCase):
     def test_optional(self):
         self.assertIsNone(PyJoi.Schema().string().optional().validate(None))
-        with self.assertRaises(Exceptions.MissingStringException):
+        with self.assertRaises(TopExceptions.MissingElementException):
             PyJoi.Schema().string().validate(None)
 
     def test_rejects_non_string(self):
@@ -16,11 +16,11 @@ class TestStringSchema(unittest.TestCase):
     def test_length_bounds(self):
         s = PyJoi.Schema().string().max_len(3)
         self.assertEqual(s.validate("hi"),"hi")
-        with self.assertRaises(Exceptions.TooLongException):
+        with self.assertRaises(Exceptions.NonMatchingLengthException):
             s.validate("hello")
         s = PyJoi.Schema().string().min_len(3)
         self.assertEqual(s.validate("hello"),"hello")
-        with self.assertRaises(Exceptions.TooShortException):
+        with self.assertRaises(Exceptions.NonMatchingLengthException):
             s.validate("hi")
         s = PyJoi.Schema().string().len(3)
         self.assertEqual(s.validate("cal"),"cal")
@@ -61,7 +61,7 @@ class TestStringSchema(unittest.TestCase):
     def test_hex(self):
         s = PyJoi.Schema().string().hex()
         self.assertEqual(s.validate(b'\x00\xef'.hex()),b'\x00\xef'.hex())
-        with self.assertRaises(Exceptions.InvalidHexException):
+        with self.assertRaises(Exceptions.NoWhiteListException):
             s.validate('hi')
     
     def test_whitelist_regex(self):

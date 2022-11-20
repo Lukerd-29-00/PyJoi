@@ -9,9 +9,10 @@ import collections
 
 T = typing.TypeVar("T",bound=typing.NamedTuple)
 class Schema(typing.Generic[T],AbstractSchema):
-    _fields: typing.Optional[typing.Dict[str,"Schema"]] = None
-    _name: typing.Optional[str]
-    _required: bool
+    _fields: typing.Dict[str,"AbstractSchema"] = None
+    _name: str
+    _required: bool = True
+    _values: typing.Dict[str,any]
 
     def __init__(self, name: typing.Optional[str] = None, required: bool = True, **kwargs: typing.Optional[typing.Dict[str,"Schema"]]):
         """Create a PyJoi Schema.
