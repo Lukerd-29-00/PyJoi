@@ -2,12 +2,13 @@ import unittest
 import PyJoi
 from PyJoi.Primitive.Int import Exceptions
 from PyJoi.Primitive import Exceptions as PrimitiveExceptions
+from PyJoi import Exceptions as BaseExceptions
 
 class TestIntSchema(unittest.TestCase):
 
     def test_optional(self):
         s = PyJoi.Schema().int()
-        with self.assertRaises(Exceptions.MissingIntException):
+        with self.assertRaises(BaseExceptions.MissingElementException):
             s.validate(None)
         self.assertIsNone(s.optional().validate(None))
 
@@ -48,43 +49,43 @@ class TestIntSchema(unittest.TestCase):
         s = PyJoi.Schema().int().max(3)
         self.assertEqual(s.validate(3),3)
         self.assertEqual(s.validate(-1),-1)
-        with self.assertRaises(Exceptions.TooBigException):
+        with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(4)
     
     def test_min(self):
         s = PyJoi.Schema().int().min(3)
         self.assertEqual(s.validate(3),3)
         self.assertEqual(s.validate(2**16),2**16)
-        with self.assertRaises(Exceptions.TooSmallException):
+        with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(2)
     
     def test_postiive(self):
         s = PyJoi.Schema().int().positive()
         self.assertEqual(s.validate(0),0)
         self.assertEqual(s.validate(25),25)
-        with self.assertRaises(Exceptions.TooSmallException):
+        with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(-3)
 
     def test_negative(self):
         s = PyJoi.Schema().int().negative()
         self.assertEqual(s.validate(-10),-10)
-        with self.assertRaises(Exceptions.TooBigException):
+        with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(0)
-        with self.assertRaises(Exceptions.TooBigException):
+        with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(35)
     
     def test_port(self):
         s = PyJoi.Schema().int().port()
         self.assertEqual(s.validate(0),0)
         self.assertEqual(s.validate(65535),65535)
-        with self.assertRaises(Exceptions.TooBigException):
+        with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(65536)
-        with self.assertRaises(Exceptions.TooSmallException):
+        with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(-1)
         s = PyJoi.Schema().int().port_nonadmin()
         self.assertEqual(s.validate(1024),1024)
         self.assertEqual(s.validate(65535),65535)
-        with self.assertRaises(Exceptions.TooBigException):
+        with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(65536)
-        with self.assertRaises(Exceptions.TooSmallException):
+        with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(1023)
