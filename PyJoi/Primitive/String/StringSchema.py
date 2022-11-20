@@ -9,13 +9,9 @@ class StringSchema(IStringSchema):
     __min_len: typing.Optional[int] = None
     __max_len: typing.Optional[int] = None
     __len: typing.Optional[int] = None
-    __whitelist_regexes: typing.Set[re.Pattern]
-    __blacklist_regexes: typing.Set[re.Pattern]
-
-    def __init__(self, name: typing.Optional[str], required: bool = True):
-        super(StringSchema,self).__init__(name,required=required)
-        self.__whitelist_regexes = set()
-        self.__blacklist_regexes = set()
+    __whitelist_regex: typing.Optional[re.Pattern] = None
+    __blacklist_regex: typing.Optional[re.Pattern] = None
+    __hex: bool = False
 
     def validate(self, value: any)->typing.Optional[str]:
         if value == None and not self.required:
@@ -32,48 +28,44 @@ class StringSchema(IStringSchema):
             raise Exceptions.NonMatchingLengthException(self.name,f"Encountered string of length {len(value)} but expected {self.__len}")
         self.check_blacklist(value)
         self.check_whitelist(value)
-        if self.__blacklist_regexes:
-            for pattern in self.__blacklist_regexes:
-                if not re.match(pattern,value) is None:
-                    raise Exceptions.MatchesBlackistException(self.name,f"{value} matches blacklisted pattern {pattern.pattern}")
-        if self.__whitelist_regexes:
-            found = False
-            for pattern in self.__whitelist_regexes:
-                if not re.match(pattern,value) is None:
-                    found = True
-                    break
-            if not found:
-                raise Exceptions.NoWhiteListException(self.name,f"{value} fails to match any whitelisted pattern.")
+        if self.__blacklist_regex and re.match(self.__blacklist_regex,value) != None:
+            raise Exceptions.MatchesBlackistException(self.name,f"{value} matches blacklisted pattern {self.__blacklist_regex.pattern}")
+        elif self.__whitelist_regex and re.match(self.__whitelist_regex,value) == None:
+            raise Exceptions.NoWhiteListException(self.name,f"{value} fails to match whitelist pattern {self.__whitelist_regex.pattern}")
+        elif self.__hex and re.match(HexPattern,value) == None:
+            raise Exceptions.NotHexException(self.name,f"{value} is not a hexadecimal string.")
         return value
 
     def whitelist(self,items: typing.Union[str,typing.Iterable[str]])->"StringSchema":
-        if self._blacklist or self.__blacklist_regexes:
+        if self._blacklist or self.__blacklist_regex:
             raise ValueError("Cannot set a blacklist if a whitelist is present!")
         self._whitelist = self._whitelist.union(items if not isinstance(items,str) else [items])
         return self
 
     def blacklist(self, items: typing.Union[str,typing.Iterable[str]])->"StringSchema":
-        if self._whitelist or self.__whitelist_regexes:
+        if self._whitelist or self.__whitelist_regex:
             raise ValueError("Cannot set a blacklist if a whitelist is present!")
         self._blacklist = self._blacklist.union(items if not isinstance(items,str) else [items])
         return self
 
-    def whitelist_patterns(self, patterns: typing.Union[str,typing.Iterable[str]])->"StringSchema":
-        if self._blacklist or self.__blacklist_regexes:
+    def whitelist_pattern(self, pattern: str)->"StringSchema":
+        if self._blacklist or self.__blacklist_regex:
             raise ValueError("Cannot set a whitelist pattern if a blacklist is present!")
-        self.__whitelist_regexes = self.__whitelist_regexes.union(patterns if not isinstance(patterns,str) else [patterns])
+        if self._whitelist:
+            raise ValueError("Cannot set a whitelist pattern there is already a whitelist.")
+        self.__whitelist_regex = re.compile(pattern)
         return self
 
-    def blacklist_patterns(self, patterns: typing.Union[typing.Iterable[str],str])->"StringSchema":
-        if self._whitelist or self.__whitelist_regexes:
+    def blacklist_pattern(self, pattern: str)->"StringSchema":
+        if self._whitelist or self.__whitelist_regex:
             raise ValueError("Cannot set a blacklist pattern if a whitelist is present!")
-        self.__blacklist_regexes = self.__blacklist_regexes.union(patterns if not isinstance(patterns,str) else [patterns])
+        self.__blacklist_regex = re.compile(pattern)
         return self
 
     def len(self,new_len: int)->"StringSchema":
         if not self.__max_len is None or not self.__min_len is None:
             raise ValueError("Cannot add length to a string schema that has length bounds already (min or max)")
-        elif HexPattern in self.__whitelist_regexes and new_len % 2 == 1:
+        elif self.__hex and new_len % 2 == 1:
             raise ValueError("You can't restrict hexadecimal strings to an odd length.")
         self.__len = new_len
         return self
@@ -93,7 +85,7 @@ class StringSchema(IStringSchema):
     def hex(self)->"StringSchema":
         if self.__len != None and self.__len % 2 == 1:
             raise ValueError("Cannot require hex from an odd-length string!")
-        elif self._blacklist or self.__blacklist_regexes:
+        elif self._blacklist or self.__blacklist_regex:
             raise ValueError("Cannot set a whitelist pattern if a blacklist is present!")
-        self.__whitelist_regexes.add(HexPattern)
+        self.__hex = True
         return self

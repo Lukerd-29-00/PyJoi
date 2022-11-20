@@ -4,25 +4,30 @@ from PyJoi.Primitive.String import Exceptions
 from PyJoi.Primitive import Exceptions as PrimitiveExceptions
 
 class TestStringSchema(unittest.TestCase):
-    def test_optional_accepts_missing(self):
-        value = PyJoi.Schema().string().optional().validate(None)
-        self.assertIsNone(value)
-        
-    def test_required_rejects_missing(self):
-        with self.assertRaises(Exceptions.MissingStringException) as cm:
+    def test_optional(self):
+        self.assertIsNone(PyJoi.Schema().string().optional().validate(None))
+        with self.assertRaises(Exceptions.MissingStringException):
             PyJoi.Schema().string().validate(None)
 
-    def test_too_short_fails(self):
-        with self.assertRaises(Exceptions.TooShortException):
-            PyJoi.Schema().string().min_len(3).validate('hi')
+    def test_rejects_non_string(self):
+        with self.assertRaises(Exceptions.NotAStringException):
+            PyJoi.Schema().string().validate(1)
 
-    def test_too_long_fails(self):
+    def test_length_bounds(self):
+        s = PyJoi.Schema().string().max_len(3)
+        self.assertEqual(s.validate("hi"),"hi")
         with self.assertRaises(Exceptions.TooLongException):
-            PyJoi.Schema().string().max_len(3).validate("hello")
-
-    def test_inside_range_accepted(self):
-        value = PyJoi.Schema().string().min_len(3).max_len(10).validate("hello")
-        self.assertEqual(value,"hello")
+            s.validate("hello")
+        s = PyJoi.Schema().string().min_len(3)
+        self.assertEqual(s.validate("hello"),"hello")
+        with self.assertRaises(Exceptions.TooShortException):
+            s.validate("hi")
+        s = PyJoi.Schema().string().len(3)
+        self.assertEqual(s.validate("cal"),"cal")
+        with self.assertRaises(Exceptions.NonMatchingLengthException):
+            s.validate("hi")
+        with self.assertRaises(Exceptions.NonMatchingLengthException):
+            s.validate("hello")
 
     def test_accepts_in_whitelist(self):
         value = PyJoi.Schema().string().whitelist("hi").validate("hi")
@@ -53,13 +58,20 @@ class TestStringSchema(unittest.TestCase):
         with self.assertRaises(PrimitiveExceptions.BlackListedValueException):
             s.validate("hello")
 
-
+    def test_hex(self):
+        s = PyJoi.Schema().string().hex()
+        self.assertEqual(s.validate(b'\x00\xef'.hex()),b'\x00\xef'.hex())
+        with self.assertRaises(Exceptions.NotHexException):
+            s.validate('hi')
     
-
+    def test_whitelist_regex(self):
+        s = PyJoi.Schema().string().whitelist_pattern(r"a.")
+        self.assertEqual(s.validate("ax"),"ax")
+        with self.assertRaises(Exceptions.NoWhiteListException):
+            s.validate("bx")
     
-
-    
-
-
-
-    
+    def test_blacklist_regex(self):
+        s = PyJoi.Schema().string().blacklist_pattern(r"a.")
+        self.assertEqual(s.validate("by"),"by")
+        with self.assertRaises(Exceptions.MatchesBlackistException):
+            s.validate("ax")

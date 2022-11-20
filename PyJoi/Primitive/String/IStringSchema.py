@@ -24,28 +24,14 @@ class IStringSchema(PrimitiveSchema[str],abc.ABC):
     def blacklist(self, items: typing.Iterable[str])->"IStringSchema":
         pass
 
-    @typing.overload
     @abc.abstractmethod
-    def whitelist_patterns(self, pattern: str)->"IStringSchema":
+    def whitelist_pattern(self, pattern: str)->"IStringSchema":
         """Whitelist a regular expression."""
         pass
 
-    @typing.overload
     @abc.abstractmethod
-    def whitelist_patterns(self, patterns: typing.Iterable[str])->"IStringSchema":
-        """Whitelist several regular expressions; the string only needs to match one."""
-        pass
-
-    @typing.overload
-    @abc.abstractmethod
-    def blacklist_patterns(self, pattern: str)->"IStringSchema":
+    def blacklist_pattern(self, pattern: str)->"IStringSchema":
         """Blacklist a regular expression."""
-        pass
-
-    @typing.overload
-    @abc.abstractmethod
-    def blacklist_patterns(self, patterns: typing.Iterable[str])->"IStringSchema":
-        """Blacklist several regular expressions."""
         pass
 
     @abc.abstractmethod

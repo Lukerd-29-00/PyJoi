@@ -9,6 +9,9 @@ class InvalidStringException(Exceptions.InvalidPrimitiveElementException,abc.ABC
     """Thrown if a string is provided that does not match the schema."""
     pass
 
+class NotHexException(InvalidStringException):
+    pass
+
 class NotAStringException(Exceptions.InvalidPrimitiveTypeException):
     pass
 
