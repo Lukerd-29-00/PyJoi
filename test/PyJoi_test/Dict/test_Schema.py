@@ -50,4 +50,12 @@ class TestSchema(unittest.TestCase):
 
     def test_kwargs_needs_name(self):
         with self.assertRaises(ValueError):
-            PyJoi.Schema(a=PyJoi.Schema().int())
+            PyJoi.Schema(a=PyJoi.Schema().int()).validate({"a": 1})
+
+    def test_empty_schema_fails(self):
+        with self.assertRaises(ValueError):
+            PyJoi.Schema("s").validate({"a": 1})
+
+    def test_requires_dict(self):
+        with self.assertRaises(Exceptions.NotAnObjectException):
+            PyJoi.Schema("S",a=PyJoi.Schema().int()).validate(1)

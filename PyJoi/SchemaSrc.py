@@ -20,9 +20,7 @@ class Schema(typing.Generic[T],AbstractSchema):
             name: The optional name of the schema. If this Schema is nested within another one, its name will be inferred.
             required: Whether or not this schema is required for the enclosing object to be valid. Can be set to False with .optional().
         """
-        if kwargs and name == None:
-            raise ValueError("If kwargs are specified a name is required.")
-        elif kwargs:
+        if kwargs:
             self.__nt = collections.namedtuple(name,kwargs.keys())
             self._fields = dict(kwargs)
             for k in self._fields.keys():
@@ -48,7 +46,9 @@ class Schema(typing.Generic[T],AbstractSchema):
         """
         if not self._fields:
             raise ValueError("Error: empty Schema encountered!")
-        if object == None and not self.required:
+        elif self.name == None:
+            raise ValueError("Error: Schema has no name!")
+        elif object == None and not self.required:
             return None
         elif object == None:
             raise Exceptions.MissingObjectException(self.name,"missing required object")
