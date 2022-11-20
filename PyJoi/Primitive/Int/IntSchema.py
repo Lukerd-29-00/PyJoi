@@ -53,18 +53,18 @@ class IntSchema(IIntSchema.IIntSchema):
         return self.__set_condition("_min",1024)
 
     def validate(self,value: any)->typing.Optional[int]:
-        if value == None and not self.required:
+        if value == None and not self._required:
             return None
         elif value == None:
-            raise Exceptions.MissingIntException(self.name,"Missing required integer")
+            raise Exceptions.MissingIntException(self._name,"Missing required integer")
         elif not isinstance(value,int):
-            raise Exceptions.NotAnIntException(self.name,"Found non-integer: the number may have been accidentally wrapped in quotes.")
+            raise Exceptions.NotAnIntException(self._name,"Found non-integer: the number may have been accidentally wrapped in quotes.")
         elif self._base != None and value % self._base != 0:
-            raise Exceptions.NonMultipleException(self.name,f"{value} is not a multiple of {self._base}")
+            raise Exceptions.NonMultipleException(self._name,f"{value} is not a multiple of {self._base}")
         elif self._max != None and value > self._max:
-            raise Exceptions.TooBigException(self.name,f"Expected value <= {self._max}, got {value}")
+            raise Exceptions.TooBigException(self._name,f"Expected value <= {self._max}, got {value}")
         elif self._min != None and value < self._min:
-            raise Exceptions.TooSmallException(self.name,f"Expected value >= {self._min}, got {value}")
+            raise Exceptions.TooSmallException(self._name,f"Expected value >= {self._min}, got {value}")
         self.check_blacklist(value)
         self.check_whitelist(value)
         return value

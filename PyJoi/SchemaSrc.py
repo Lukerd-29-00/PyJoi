@@ -10,8 +10,8 @@ import collections
 T = typing.TypeVar("T",bound=typing.NamedTuple)
 class Schema(typing.Generic[T],AbstractSchema):
     _fields: typing.Optional[typing.Dict[str,"Schema"]] = None
-    name: typing.Optional[str]
-    required: bool
+    _name: typing.Optional[str]
+    _required: bool
 
     def __init__(self, name: typing.Optional[str] = None, required: bool = True, **kwargs: typing.Optional[typing.Dict[str,"Schema"]]):
         """Create a PyJoi Schema.
@@ -24,19 +24,19 @@ class Schema(typing.Generic[T],AbstractSchema):
             self.__nt = collections.namedtuple(name,kwargs.keys())
             self._fields = dict(kwargs)
             for k in self._fields.keys():
-                self._fields[k].name = k
-        self.required = required
-        self.name = name
+                self._fields[k]._name = k
+        self._required = required
+        self._name = name
 
     def string(self)->StringSchema:
         """Create a string schema."""
         if self._fields != None:
             raise ValueError("Cannot create string schema from an object schema with parameters!")
-        return StringSchemaConstructor(self.name,required=self.required)
+        return StringSchemaConstructor(self._name,required=self._required)
 
     def int(self)->IntSchema:
         """Create an int schema."""
-        return IntSchemaConstructor(self.name,required=self.required)
+        return IntSchemaConstructor(self._name,required=self._required)
 
     def validate(self,object: typing.Optional[typing.Dict[str,any]])->typing.Optional[T]:
         """Validate an object (Python dictionary from strings to anything that can be represented by another Schema).
@@ -46,23 +46,23 @@ class Schema(typing.Generic[T],AbstractSchema):
         """
         if not self._fields:
             raise ValueError("Error: empty Schema encountered!")
-        elif self.name == None:
+        elif self._name == None:
             raise ValueError("Error: Schema has no name!")
-        elif object == None and not self.required:
+        elif object == None and not self._required:
             return None
         elif object == None:
-            raise Exceptions.MissingObjectException(self.name,"missing required object")
+            raise Exceptions.MissingObjectException(self._name,"missing required object")
         elif not isinstance(object,typing.Dict):
-            raise Exceptions.NotAnObjectException(self.name,"expected to be associated with an object but encountered something else.")
+            raise Exceptions.NotAnObjectException(self._name,"expected to be associated with an object but encountered something else.")
         try:
             data = dict([(key, self._fields[key].validate(None if object is None or not key in object.keys() else object[key])) for key in self._fields.keys()])
         except Exceptions.ValidationException as V:
-            raise type(V)(f"{self.name}.{V.name}",V.vmessage)
+            raise type(V)(f"{self._name}.{V.name}",V.vmessage)
         s = set(data.values())
-        if len(s) == 1 and None in s and not self.required:
+        if len(s) == 1 and None in s and not self._required:
             return None
         elif len(s) == 1 and None in s:
-            raise Exceptions.EmptyObjectException(self.name,"Required object is empty.")
+            raise Exceptions.EmptyObjectException(self._name,"Required object is empty.")
         return self.__nt(**data)
 
     def optional(self)->"Schema":

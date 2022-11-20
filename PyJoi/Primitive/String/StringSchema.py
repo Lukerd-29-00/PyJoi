@@ -20,26 +20,26 @@ class StringSchema(IStringSchema):
     __hex: bool = False
 
     def validate(self, value: any)->typing.Optional[str]:
-        if value == None and not self.required:
+        if value == None and not self._required:
             return value
         elif value == None:
-            raise Exceptions.MissingStringException(self.name,"Encountered unexpected null/missing value for required string.")
+            raise Exceptions.MissingStringException(self._name,"Encountered unexpected null/missing value for required string.")
         if not isinstance(value,str):
-            raise Exceptions.NotAStringException(self.name,"Encounted non string value")
+            raise Exceptions.NotAStringException(self._name,"Encounted non string value")
         if not self.__min_len is None and len(value) < self.__min_len:
-            raise Exceptions.TooShortException(self.name,f"Encounted string of length {len(value)} but expected length to be >= {self.__min_len}")
+            raise Exceptions.TooShortException(self._name,f"Encounted string of length {len(value)} but expected length to be >= {self.__min_len}")
         elif not self.__max_len is None and len(value) > self.__max_len:
-            raise Exceptions.TooLongException(self.name,f"Encountered string of length {len(value)} but expected length to be <= {self.__max_len}")
+            raise Exceptions.TooLongException(self._name,f"Encountered string of length {len(value)} but expected length to be <= {self.__max_len}")
         elif not self.__len is None and len(value) != self.__len:
-            raise Exceptions.NonMatchingLengthException(self.name,f"Encountered string of length {len(value)} but expected {self.__len}")
+            raise Exceptions.NonMatchingLengthException(self._name,f"Encountered string of length {len(value)} but expected {self.__len}")
         self.check_blacklist(value)
         self.check_whitelist(value)
         if self.__blacklist_regex and re.match(self.__blacklist_regex,value) != None:
-            raise Exceptions.MatchesBlackistException(self.name,f"{value} matches blacklisted pattern {self.__blacklist_regex.pattern}")
+            raise Exceptions.MatchesBlackistException(self._name,f"{value} matches blacklisted pattern {self.__blacklist_regex.pattern}")
         elif self.__whitelist_regex and re.match(self.__whitelist_regex,value) == None:
-            raise Exceptions.NoWhiteListException(self.name,f"{value} fails to match whitelist pattern {self.__whitelist_regex.pattern}")
+            raise Exceptions.NoWhiteListException(self._name,f"{value} fails to match whitelist pattern {self.__whitelist_regex.pattern}")
         elif self.__hex and re.match(HexPattern,value) == None:
-            raise Exceptions.InvalidHexException(self.name,f"{value} is not a hexadecimal string.")
+            raise Exceptions.InvalidHexException(self._name,f"{value} is not a hexadecimal string.")
         return value
 
     def whitelist(self,items: typing.Union[str,typing.Iterable[str]])->"StringSchema":
@@ -93,7 +93,7 @@ class StringSchema(IStringSchema):
         return self
 
     def base64(self)->"Base64Schema":
-        return Base64Schema(self.name,self.required)
+        return Base64Schema(self._name,self._required)
 
 class Base64Schema(StringSchema):
     __padded: bool = True
@@ -115,11 +115,11 @@ class Base64Schema(StringSchema):
         if value == None:
             return value
         elif self.__padded and self.__urlsafe and re.match(PaddedUrlSafeB64Pattern,value) == None:
-            raise Exceptions.InvalidBase64Exception(self.name,f"{value} is invalid urlsafe base64")
+            raise Exceptions.InvalidBase64Exception(self._name,f"{value} is invalid urlsafe base64")
         elif self.__padded and not self.__urlsafe and re.match(PaddedB64Pattern,value) == None:
-            raise Exceptions.InvalidBase64Exception(self.name,f"{value} is invalid base64")
+            raise Exceptions.InvalidBase64Exception(self._name,f"{value} is invalid base64")
         elif not self.__padded and self.__urlsafe and re.match(UnPaddedUrlSafeB64Pattern,value) == None:
-            raise Exceptions.InvalidBase64Exception(self.name,f"{value} is invalid unpadded urlsafe base64")
+            raise Exceptions.InvalidBase64Exception(self._name,f"{value} is invalid unpadded urlsafe base64")
         elif not self.__padded and not self.__urlsafe and re.match(UnpaddedB64Pattern,value) == None:
-            raise Exceptions.InvalidBase64Exception(self.name,f"{value} is invalid unpadded base64")
+            raise Exceptions.InvalidBase64Exception(self._name,f"{value} is invalid unpadded base64")
         return value

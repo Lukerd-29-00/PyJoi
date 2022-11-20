@@ -10,8 +10,8 @@ class PrimitiveSchema(AbstractSchema.AbstractSchema,abc.ABC,typing.Generic[T]):
     _whitelist: typing.Set[T]
 
     def __init__(self,name: typing.Optional[str], required: bool = True):
-        self.name = name
-        self.required = required
+        self._name = name
+        self._required = required
         self._blacklist = set()
         self._whitelist = set()
 
@@ -21,8 +21,8 @@ class PrimitiveSchema(AbstractSchema.AbstractSchema,abc.ABC,typing.Generic[T]):
 
     def check_blacklist(self,value: T)->None:
         if self._blacklist and value in self._blacklist:
-            raise Exceptions.BlackListedValueException(self.name,f"{value} in blacklist")
+            raise Exceptions.BlackListedValueException(self._name,f"{value} in blacklist")
 
     def check_whitelist(self,value: T)->None:
         if self._whitelist and not value in self._whitelist:
-            raise Exceptions.NonWhiteListedValueException(self.name,f"{value} not in whitelist")
+            raise Exceptions.NonWhiteListedValueException(self._name,f"{value} not in whitelist")

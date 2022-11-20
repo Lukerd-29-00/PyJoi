@@ -10,12 +10,12 @@ class TestSchema(unittest.TestCase):
         s = PyJoi.Schema("s",
             a=PyJoi.Schema().int()
         )
-        self.assertEqual(s._fields["a"].name,"a")
+        self.assertEqual(s._fields["a"]._name,"a")
     
     def test_parameter_preservation(self):
         s = PyJoi.Schema("s").optional().int()
-        self.assertEqual(s.name,"s")
-        self.assertEqual(s.required,False)
+        self.assertEqual(s._name,"s")
+        self.assertEqual(s._required,False)
 
     def test_optional(self):
         s = PyJoi.Schema("s",
