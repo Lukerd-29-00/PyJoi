@@ -12,6 +12,24 @@ PaddedUrlSafeB64Pattern = re.compile(r"^(?:[A-Za-z0-9\-_]{4})*(?:[A-Za-z0-9\-_]{
 UnPaddedUrlSafeB64Pattern = re.compile(r"^(?:[A-Za-z0-9\-_]{4})*(?:[A-Za-z0-9\-_]{2,3})?$")
 
 class StringSchema(IStringSchema):
+
+    @typing.overload
+    def whitelist(self,*items: str)->"StringSchema":
+        pass
+    @typing.overload
+    def whitelist(self,items: typing.Iterable[str])->"StringSchema":
+        pass
+    def whitelist(self,*items: typing.Union[str,typing.Iterable[str]])->"StringSchema":
+        return super(StringSchema,self).whitelist(items,primitive=str)
+
+    @typing.overload
+    def blacklist(self,*items: str)->"StringSchema":
+        pass
+    @typing.overload
+    def blacklist(self,items: typing.Iterable[str])->"StringSchema":
+        pass
+    def blacklist(self,*items: typing.Union[str,typing.Iterable[str]])->"StringSchema":
+        return super(StringSchema,self).blacklist(items,primitive=str)
     
     def validate(self,value: any)->typing.Optional[str]:
         if not isinstance(value,str) and value != None:

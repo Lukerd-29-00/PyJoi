@@ -4,13 +4,7 @@ import abc
 class NotAnIntException(Exceptions.InvalidPrimitiveTypeException):
     pass
 
-class InvalidSizeException(Exceptions.InvalidPrimitiveElementException,abc.ABC):
-    pass
-
-class TooSmallException(InvalidSizeException):
-    pass
-
-class TooBigException(InvalidSizeException):
+class InvalidSizeException(Exceptions.InvalidPrimitiveElementException):
     pass
 
 class NonMultipleException(Exceptions.InvalidPrimitiveElementException):
