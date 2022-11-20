@@ -51,6 +51,10 @@ class IIntSchema(PrimitiveSchema[int],abc.ABC):
     def port_nonadmin(self)->"IIntSchema":
         pass
 
+    @abc.abstractmethod
+    def validate(self, value: any) -> typing.Optional[int]:
+        pass
+
     def optional(self)->"IIntSchema":
         return super(IIntSchema,self).optional()
 
