@@ -1,5 +1,6 @@
 import unittest
 import PyJoi
+import typing
 from PyJoi.Primitive.Int import Exceptions
 from PyJoi.Primitive import Exceptions as PrimitiveExceptions
 from PyJoi import Exceptions as BaseExceptions
@@ -89,3 +90,25 @@ class TestIntSchema(unittest.TestCase):
             s.validate(65536)
         with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(1023)
+
+    def test_greater(self):
+        class TestTuple(typing.NamedTuple):
+            a: int
+            b: int
+
+        s = PyJoi.Schema[TestTuple]("s",
+            a=PyJoi.Schema().int().greater(PyJoi.Ref("b")),
+            b=PyJoi.Schema().int()
+        )
+        s2 = PyJoi.Schema("s2",
+            obj=PyJoi.Schema("obj",
+                value=PyJoi.Schema().int()
+            ),
+            obj2=PyJoi.Schema("obj2",
+                value=PyJoi.Schema().int().greater(PyJoi.Ref("obj.value"))
+            )
+        )
+        t = s.validate({"a": 2, "b": 1})
+        self.assertEqual(t.a,2)
+        self.assertEqual(t.b,1)
+        t2 = s2.validate({"obj": {"value": 1}, "obj2": {"value": 2}})

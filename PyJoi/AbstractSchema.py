@@ -1,29 +1,47 @@
 import typing
 import abc
-from . import Ref
+from .RefSrc import Ref
 if typing.TYPE_CHECKING:
     from .SchemaSrc import Schema
 
-class AbstractSchema(abc.ABC):
+T = typing.TypeVar("T")
+V = typing.TypeVar("V")
+N = typing.TypeVar("N",str,typing.Optional[str])
+class AbstractSchema(abc.ABC,typing.Generic[T,V,N]):
+    _name: N
     _required: bool
     _parent: typing.Optional["Schema"] = None
     _root: "Schema"
-    _depends_on: typing.Set[Ref.Ref]
+    _depends_on: typing.Dict[Ref,any]
     R = typing.TypeVar("R")
+
+    def __init__(self):
+        self._depends_on = {}
 
     def optional(self)->"AbstractSchema":
         """Indicates that this field is optional. An optional Schema will also accept empty objects. Any missing fields will be assigned to None."""
         self._required = False
         return self
 
-    def _add_ref(self,ref: Ref.Ref)->None:
-        #This is safe to do recursively because it only needs to be done when creating the Schema, so it's okay if it's slow.
-        self._depends_on.add(ref)
-        if not self._parent == self._root:
-            path = str(ref).split(".")
-            self._parent._add_ref(Ref.Ref("".join[path[:-1]]))
+    def _add_ref(self,ref: Ref)->None:
+        self._depends_on[ref] = None
+        ref._schema = self
+    
+    def _add_parent_refs(self):
+        for ref in self._depends_on.keys():
+            self._add_parent_ref(ref)
 
-    def _get_ref_value(self,ref: Ref.Ref[R])->R:
+    def _add_parent_ref(self, ref: Ref):
+        path = str(ref).split('.')
+        if len(path) > 1:
+            self._parent._add_ref(Ref(".".join(path[:-1])))
+        
+        
+    @abc.abstractmethod
+    def validate(self, value: T)->typing.Optional[V]:
+        pass
+
+    def _get_ref_value(self,ref: Ref[R])->R:
         parent = self._parent
         node = self
         path = str(ref).split(".")

@@ -1,7 +1,7 @@
 from . import Exceptions
 import typing
 import re
-from .IStringSchema import IStringSchema
+from .IStringSchema import IStringSchema, IBase64Schema
 
 HexPattern = re.compile(r"^(?:[a-f0-9][a-f0-9])*$")
 
@@ -23,12 +23,12 @@ class StringSchema(IStringSchema):
         return super(StringSchema,self).whitelist(items,primitive=str)
 
     @typing.overload
-    def blacklist(self,*items: str)->"StringSchema":
+    def blacklist(self,*items: str)->"IStringSchema":
         pass
     @typing.overload
-    def blacklist(self,items: typing.Iterable[str])->"StringSchema":
+    def blacklist(self,items: typing.Iterable[str])->"IStringSchema":
         pass
-    def blacklist(self,*items: typing.Union[str,typing.Iterable[str]])->"StringSchema":
+    def blacklist(self,*items: typing.Union[str,typing.Iterable[str]])->"IStringSchema":
         return super(StringSchema,self).blacklist(items,primitive=str)
     
     def validate(self,value: any)->typing.Optional[str]:
@@ -46,12 +46,12 @@ class StringSchema(IStringSchema):
             return string
         raise Exceptions.MatchesBlackistException(self._name,f"String {string} matches blacklisted pattern {pattern.pattern}")
 
-    def whitelist_pattern(self, pattern: str)->"StringSchema":
+    def whitelist_pattern(self, pattern: str)->"IStringSchema":
         whitelist_regex = re.compile(pattern)
         self._checks.append(lambda value: self._matches(value,whitelist_regex))
         return self
 
-    def blacklist_pattern(self, pattern: str)->"StringSchema":
+    def blacklist_pattern(self, pattern: str)->"IStringSchema":
         blacklist_regex = re.compile(pattern)
         self._checks.append(lambda value: self._not_matches(value,blacklist_regex))
         return self
@@ -61,26 +61,26 @@ class StringSchema(IStringSchema):
             return string
         raise Exceptions.NonMatchingLengthException(self._name,f"String {string} has an incorrect length of {len(string)}")
 
-    def len(self,new_len: int)->"StringSchema":
+    def len(self,new_len: int)->"IStringSchema":
         self._checks.append(lambda value: self._check_len(value,new_len.__eq__))
         return self
     
-    def min_len(self,new_min: int)->"StringSchema":
+    def min_len(self,new_min: int)->"IStringSchema":
         self._checks.append(lambda value: self._check_len(value,new_min.__le__))
         return self
 
-    def max_len(self, new_max: int)->"StringSchema":
+    def max_len(self, new_max: int)->"IStringSchema":
         self._checks.append(lambda value: self._check_len(value,new_max.__ge__))
         return self
 
-    def hex(self)->"StringSchema":
+    def hex(self)->"IStringSchema":
         self._checks.append(lambda value: self._matches(value,HexPattern))
         return self
 
-    def base64(self)->"Base64Schema":
+    def base64(self)->"IBase64Schema":
         return Base64Schema(self._name,self._required)
 
-class Base64Schema(StringSchema):
+class Base64Schema(StringSchema,IBase64Schema):
     __padded: bool = True
     __urlsafe: bool = False
 

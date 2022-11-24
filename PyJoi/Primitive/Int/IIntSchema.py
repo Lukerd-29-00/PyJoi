@@ -1,6 +1,7 @@
 import abc
 from .. import PrimitiveSchema
 import typing
+from ...RefSrc import Ref
 
 class IIntSchema(PrimitiveSchema[int],abc.ABC):
 
@@ -52,6 +53,10 @@ class IIntSchema(PrimitiveSchema[int],abc.ABC):
 
     @abc.abstractmethod
     def port_nonadmin(self)->"IIntSchema":
+        pass
+
+    @abc.abstractmethod
+    def greater(ref: Ref[int])->"IIntSchema":
         pass
 
     def optional(self)->"IIntSchema":

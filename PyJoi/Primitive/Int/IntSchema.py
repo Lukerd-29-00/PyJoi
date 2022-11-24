@@ -2,6 +2,7 @@
 import typing
 from . import Exceptions
 from . import IIntSchema
+from ...RefSrc import Ref
 class IntSchema(IIntSchema.IIntSchema):
 
     def validate(self, value: any)->typing.Optional[int]:
@@ -29,6 +30,11 @@ class IntSchema(IIntSchema.IIntSchema):
 
     def multiple(self, base: int)->"IIntSchema":
         self._checks.append(lambda value: self._check_multiple(value,base))
+        return self
+
+    def greater(self, ref: Ref[int])->"IIntSchema":
+        self._add_ref(ref)
+        self._checks.append(lambda value: self._check_size(value,ref.value.__lt__))
         return self
 
     def positive(self)->"IIntSchema":

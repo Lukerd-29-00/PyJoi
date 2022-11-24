@@ -1,12 +1,11 @@
 from .AbstractSchema import AbstractSchema
-from . import Ref
 import typing
 import abc
 from . import Exceptions
 
 
 T = typing.TypeVar("T")
-class NonObjectSchema(typing.Generic[T],AbstractSchema,abc.ABC):
+class NonObjectSchema(typing.Generic[T],AbstractSchema[any,T,typing.Optional[str]],abc.ABC):
     Ps = typing.ParamSpec("Ps")
        
     R = typing.TypeVar("R") #I wish I could add R extends T, but python doesn't let me do that :(
@@ -15,6 +14,7 @@ class NonObjectSchema(typing.Generic[T],AbstractSchema,abc.ABC):
     _name: typing.Optional[str]
 
     def __init__(self):
+        super(NonObjectSchema,self).__init__()
         self._checks = []
 
     def validate(self,value: any)->typing.Optional[T]:
