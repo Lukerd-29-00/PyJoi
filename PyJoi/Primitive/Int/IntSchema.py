@@ -20,21 +20,28 @@ class IntSchema(IIntSchema.IIntSchema):
             return value
         raise Exceptions.NonMultipleException(self._name,f"Encountered {value}, not divisible by {base}")
 
-    def max(self, new_max: int)->"IIntSchema":
-        self._checks.append(lambda value: self._check_size(value,new_max.__ge__))
+    def max(self, new_max: typing.Union[int,Ref[int]])->"IIntSchema":
+        if isinstance(new_max,int):
+            self._checks.append(lambda value: self._check_size(value,new_max.__ge__))
+        else:
+            self._add_ref(new_max)
+            self._checks.append(lambda value: self._check_size(value,new_max.value.__ge__))
         return self
 
-    def min(self, new_min: int)->"IIntSchema":
-        self._checks.append(lambda value: self._check_size(value,new_min.__le__))
+    def min(self, new_min: typing.Union[int,Ref[int]])->"IIntSchema":
+        if isinstance(new_min,int):
+            self._checks.append(lambda value: self._check_size(value,new_min.__le__))
+        else:
+            self._add_ref(new_min)
+            self._checks.append(lambda value: self._check_size(value,new_min.value.__le__))
         return self
 
-    def multiple(self, base: int)->"IIntSchema":
-        self._checks.append(lambda value: self._check_multiple(value,base))
-        return self
-
-    def greater(self, ref: Ref[int])->"IIntSchema":
-        self._add_ref(ref)
-        self._checks.append(lambda value: self._check_size(value,ref.value.__lt__))
+    def multiple(self, base: typing.Union[int,Ref[int]])->"IIntSchema":
+        if isinstance(base,int):
+            self._checks.append(lambda value: self._check_multiple(value,base))
+        else:
+            self._add_ref(base)
+            self._checks.append(lambda value: self._check_multiple(value,base.value))
         return self
 
     def positive(self)->"IIntSchema":

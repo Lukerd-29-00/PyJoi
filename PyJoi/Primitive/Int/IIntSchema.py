@@ -28,15 +28,15 @@ class IIntSchema(PrimitiveSchema[int],abc.ABC):
         pass
 
     @abc.abstractmethod
-    def max(self,new_max: int)->"IIntSchema":
+    def max(self,new_max: typing.Union[Ref[int],int])->"IIntSchema":
         pass
 
     @abc.abstractmethod
-    def min(self, new_max: int)->"IIntSchema":
+    def min(self, new_max: typing.Union[Ref[int],int])->"IIntSchema":
         pass
     
     @abc.abstractmethod
-    def multiple(self,new_base: int)->"IIntSchema":
+    def multiple(self,new_base: typing.Union[Ref[int],int])->"IIntSchema":
         pass
 
     @abc.abstractmethod
@@ -53,10 +53,6 @@ class IIntSchema(PrimitiveSchema[int],abc.ABC):
 
     @abc.abstractmethod
     def port_nonadmin(self)->"IIntSchema":
-        pass
-
-    @abc.abstractmethod
-    def greater(ref: Ref[int])->"IIntSchema":
         pass
 
     def optional(self)->"IIntSchema":

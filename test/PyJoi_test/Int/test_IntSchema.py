@@ -45,6 +45,18 @@ class TestIntSchema(unittest.TestCase):
         self.assertEqual(s.validate(3*2**15),3*2**15)
         with self.assertRaises(Exceptions.NonMultipleException):
             s.validate(4)
+        class TestTuple(typing.NamedTuple):
+            value: int
+            base: int
+        s = PyJoi.Schema[TestTuple]("s",
+            value=PyJoi.Schema().int().multiple(PyJoi.Ref("base")),
+            base=PyJoi.Schema().int()
+        )
+        tup = s.validate({"value": 9, "base": 3})
+        self.assertEqual(tup.value,9)
+        self.assertEqual(tup.base,3)
+        with self.assertRaises(Exceptions.NonMultipleException):
+            s.validate({"value": 1, "base": 3})
 
     def test_max(self):
         s = PyJoi.Schema().int().max(3)
@@ -52,6 +64,18 @@ class TestIntSchema(unittest.TestCase):
         self.assertEqual(s.validate(-1),-1)
         with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(4)
+        class TestTuple(typing.NamedTuple):
+            value: int
+            value2: int
+        s = PyJoi.Schema[TestTuple]("s",
+            value=PyJoi.Schema().int().max(PyJoi.Ref("value2")),
+            value2=PyJoi.Schema().int()
+        )
+        tup = s.validate({"value": 1, "value2": 1})
+        self.assertEqual(tup.value,1)
+        self.assertEqual(tup.value2,1)
+        with self.assertRaises(Exceptions.InvalidSizeException):
+            s.validate({"value": 3, "value2": 2})
     
     def test_min(self):
         s = PyJoi.Schema().int().min(3)
@@ -59,7 +83,19 @@ class TestIntSchema(unittest.TestCase):
         self.assertEqual(s.validate(2**16),2**16)
         with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(2)
-    
+        class TestTuple(typing.NamedTuple):
+            value: int
+            value2: int
+        s = PyJoi.Schema[TestTuple]("s",
+            value=PyJoi.Schema().int().min(PyJoi.Ref("value2")),
+            value2=PyJoi.Schema().int()
+        )
+        tup = s.validate({"value": 3, "value2": 2})
+        self.assertEqual(tup.value,3)
+        self.assertEqual(tup.value2,2)
+        with self.assertRaises(Exceptions.InvalidSizeException):
+            s.validate({"value": 1,"value2": 2})
+
     def test_postiive(self):
         s = PyJoi.Schema().int().positive()
         self.assertEqual(s.validate(0),0)
@@ -90,25 +126,3 @@ class TestIntSchema(unittest.TestCase):
             s.validate(65536)
         with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(1023)
-
-    def test_greater(self):
-        class TestTuple(typing.NamedTuple):
-            a: int
-            b: int
-
-        s = PyJoi.Schema[TestTuple]("s",
-            a=PyJoi.Schema().int().greater(PyJoi.Ref("b")),
-            b=PyJoi.Schema().int()
-        )
-        s2 = PyJoi.Schema("s2",
-            obj=PyJoi.Schema("obj",
-                value=PyJoi.Schema().int()
-            ),
-            obj2=PyJoi.Schema("obj2",
-                value=PyJoi.Schema().int().greater(PyJoi.Ref("obj.value"))
-            )
-        )
-        t = s.validate({"a": 2, "b": 1})
-        self.assertEqual(t.a,2)
-        self.assertEqual(t.b,1)
-        t2 = s2.validate({"obj": {"value": 1}, "obj2": {"value": 2}})
