@@ -4,6 +4,7 @@ from .AbstractSchema import AbstractSchema
 from .Primitive.String.StringSchema import StringSchema as StringSchemaConstructor
 from .Primitive.String import StringSchema
 from .Primitive.Int.IntSchema import IntSchema as IntSchemaConstructor
+from .List.ListSchema import ListSchema
 from .Primitive.Int import IntSchema
 import collections
 from collections import abc
@@ -80,7 +81,6 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
         """
         super(Schema,self).__init__()
         if kwargs:
-            self.__nt = collections.namedtuple(name,kwargs.keys())
             self._fields = dict(kwargs)
             for k in self._fields.keys():
                 self._fields[k]._name = k
@@ -99,6 +99,9 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
         """Create an int schema."""
         return IntSchemaConstructor(self._name,required=self._required)
 
+    def list(self)->ListSchema:
+        return ListSchema(self._name,self._required)
+
     def _resolve_dependency_chain(self, ref: Ref, chain: OrderedSet)->None:
         for dependency in self._fields[ref._path]._depends_on.keys():
             if len(dependency._path.split('.')) == 1:
@@ -110,6 +113,9 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
 
         Args:
             object: The object being validated. Must be a dictionary or None.
+        
+        Returns:
+            The dictionary put in, or None if the input was empty or None. An exception will be thrown if the validation fails.
         """
         if not self._fields:
             raise ValueError("Error: empty Schema encountered!")
@@ -120,7 +126,8 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
         elif object == None:
             raise Exceptions.MissingObjectException(self._name,"missing required object")
         elif not isinstance(object,typing.Dict):
-            raise Exceptions.NotAnObjectException(self._name,"expected to be associated with an object but encountered something else.")
+            raise Exceptions.NotAnObjectException(self._name,"expected to be associated with a dictionary but encountered something else.")
+        nt = collections.namedtuple(self._name,self._fields.keys())
         Keys = OrderedSet[str]()
         for key in self._fields.keys():
             for ref in self._fields[key]._depends_on.keys():
@@ -144,7 +151,7 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
             return None
         elif len(s) == 1 and None in s:
             raise Exceptions.EmptyObjectException(self._name,"Required object is empty.")
-        return self.__nt(**data)
+        return nt(**data)
 
-    def optional(self)->"Schema":
+    def optional(self)->"Schema[T]":
         return super(Schema,self).optional()

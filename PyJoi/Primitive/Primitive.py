@@ -6,11 +6,6 @@ import datetime
 T = typing.TypeVar("T",int,str,float,datetime.datetime)
 class PrimitiveSchema(typing.Generic[T],NonObjectSchema.NonObjectSchema[T]):
 
-    def __init__(self,name: typing.Optional[str], required: bool = True):
-        super(PrimitiveSchema,self).__init__()
-        self._name = name
-        self._required = required
-
     def whitelist(self, items: typing.Union[T,typing.Iterable[T]],primitive: type)->"PrimitiveSchema":
         if not isinstance(items[0],primitive) and len(items) > 1:
             raise ValueError("Cannot blacklist several iterables at once!")

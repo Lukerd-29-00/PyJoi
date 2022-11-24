@@ -11,10 +11,9 @@ class NonObjectSchema(typing.Generic[T],AbstractSchema[any,T,typing.Optional[str
     R = typing.TypeVar("R") #I wish I could add R extends T, but python doesn't let me do that :(
     _or: typing.Optional["NonObjectSchema[R]"] = None
     _checks: typing.List[typing.Union[typing.Callable[[T],typing.Optional[T]],typing.Callable[[T],T]]]
-    _name: typing.Optional[str]
 
-    def __init__(self):
-        super(NonObjectSchema,self).__init__()
+    def __init__(self, name: typing.Optional[str] = None, required: bool = True):
+        super(NonObjectSchema,self).__init__(name,required=required)
         self._checks = []
 
     def validate(self,value: any)->typing.Optional[T]:
