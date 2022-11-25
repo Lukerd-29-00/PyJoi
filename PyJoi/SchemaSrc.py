@@ -146,12 +146,13 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
                 data[key] = self._fields[key].validate(None if not key in object.keys() else object[key])
         except Exceptions.ValidationException as V:
             raise type(V)(f"{self._name}.{V.name}",V.vmessage)
-        s = set(data.values())
-        if len(s) == 1 and None in s and not self._required:
+        for value in data.values():
+            if value != None:
+                return nt(**data)
+        if self._required:
+            raise Exceptions.EmptyObjectException(self._name,"required object was empty!")
+        else:
             return None
-        elif len(s) == 1 and None in s:
-            raise Exceptions.EmptyObjectException(self._name,"Required object is empty.")
-        return nt(**data)
 
     def optional(self)->"Schema[T]":
         return super(Schema,self).optional()
