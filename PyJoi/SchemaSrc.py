@@ -1,6 +1,6 @@
 import typing
 from . import Exceptions
-from .AbstractSchema import AbstractSchema
+from .AbstractSchema import AbstractSchema, empty
 from .Primitive.String.StringSchema import StringSchema as StringSchemaConstructor
 from .Primitive.String import StringSchema
 from .Primitive.Int.IntSchema import IntSchema as IntSchemaConstructor
@@ -79,15 +79,13 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
             name: The optional name of the schema. If this Schema is nested within another one, its name will be inferred.
             required: Whether or not this schema is required for the enclosing object to be valid. Can be set to False with .optional().
         """
-        super(Schema,self).__init__()
+        super(Schema,self).__init__(name,required=required)
         if kwargs:
             self._fields = dict(kwargs)
             for k in self._fields.keys():
                 self._fields[k]._name = k
                 self._fields[k]._parent = self
                 self._fields[k]._add_parent_refs()
-        self._required = required
-        self._name = name
 
     def string(self)->StringSchema:
         """Create a string schema."""
@@ -131,18 +129,19 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
         Keys = OrderedSet[str]()
         for key in self._fields.keys():
             for ref in self._fields[key]._depends_on.keys():
-                if len(ref._path.split('.')) == 1:
-                    self._resolve_dependency_chain(ref,Keys)
+                if ref in self._depends_on.keys():
+                    self._fields[key]._depends_on[ref] = self._depends_on[ref] #Inject any values from resolved refs injected from above.
+                elif self._name == ref.root:
+                    Keys.append(ref.path[1])
                 else:
-                    pathComponents = (".".join(ref._path.split('.')[:-1]), ref._path.split('.')[-1])
-                    self._fields[key]._depends_on[ref] = self._depends_on[Ref(pathComponents[0])].__getattribute__(pathComponents[1])
+                    Keys.append(str(ref))                
             Keys.append(key)
         data = {}
         try:
             for key in Keys:
                 for dep in self._fields[key]._depends_on.keys():
-                    if len(ref._path.split('.')) == 1:
-                        self._fields[key]._depends_on[dep] = data[dep._path]
+                    if not dep in self._depends_on.keys():
+                        self._fields[key]._depends_on[dep] = data[str(dep) if len(dep.path) == 1 else dep.path[1]]
                 data[key] = self._fields[key].validate(None if not key in object.keys() else object[key])
         except Exceptions.ValidationException as V:
             raise type(V)(f"{self._name}.{V.name}",V.vmessage)

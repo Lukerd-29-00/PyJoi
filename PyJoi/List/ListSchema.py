@@ -51,9 +51,12 @@ class ListSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,typing.List
         return output
 
     def matches(self, schema: AbstractSchema.AbstractSchema)->"ListSchema[T]":
-        if not isinstance(schema,Schema.Schema):
-            self._depends_on.update(schema._depends_on)
         self._matches = schema
+        schema._parent = self
+        if isinstance(schema,Schema.Schema):
+            schema._add_parent_refs()
+        else:
+            self._depends_on.update(schema._depends_on)
         return self
     
     def has(self, *schemas: AbstractSchema.AbstractSchema)->"ListSchema[T]":

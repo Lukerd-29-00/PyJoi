@@ -47,3 +47,6 @@ class ObjectContainsWrongTypeException(ObjectMissingKeyException):
 class NotAnObjectException(InvalidTypeException):
     """Thrown by Schema.validate if the value provided is not a Dict."""
     pass
+
+class UnresolvedRefError(Exception):
+    pass

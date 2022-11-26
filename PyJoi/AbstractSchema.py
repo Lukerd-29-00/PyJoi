@@ -1,8 +1,18 @@
 import typing
 import abc
 from .RefSrc import Ref
+from . import Exceptions
 if typing.TYPE_CHECKING:
     from .SchemaSrc import Schema
+
+class Empty():
+    """This is here as the initial value assigned to each ref before being resolved at runtime. This makes it so that an UnresolvedRefError is raised if the ref is not resolved before its value is needed."""
+    def __bool__(self):
+        return False
+    def __getattr__(self, __name: str)->None:
+        raise Exceptions.UnresolvedRefError("Empty ref was used!")
+
+empty = Empty() #This is used instead of None for initial dependency values in order to raise this custom error if an invalid ref is invoked.
 
 T = typing.TypeVar("T")
 V = typing.TypeVar("V")
@@ -25,7 +35,7 @@ class AbstractSchema(abc.ABC,typing.Generic[T,V,N]):
         return self
 
     def _add_ref(self,ref: Ref)->None:
-        self._depends_on[ref] = None
+        self._depends_on[ref] = empty
         ref._schema = self
     
     def _add_parent_refs(self):
@@ -34,8 +44,10 @@ class AbstractSchema(abc.ABC,typing.Generic[T,V,N]):
 
     def _add_parent_ref(self, ref: Ref):
         path = str(ref).split('.')
-        if len(path) > 1:
-            self._parent._add_ref(Ref(".".join(path[:-1])))
+        if len(path) > 1 and self._name != path[0] and self._parent != None:
+            newRef = Ref(str(ref))
+            self._add_ref(newRef)
+            self._parent._add_parent_ref(newRef)
         
     @abc.abstractmethod
     def validate(self, value: T)->typing.Optional[V]:

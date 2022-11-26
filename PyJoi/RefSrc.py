@@ -11,6 +11,14 @@ class Ref(typing.Generic[T]):
     @property
     def value(self)->T:
         return self._schema._depends_on[self]
+    
+    @property
+    def path(self)->typing.List[str]:
+        return self._path.split('.')
+
+    @property
+    def root(self)->str:
+        return self._path.split('.')[0]
 
     def __init__(self,path: str):
         self._path = path

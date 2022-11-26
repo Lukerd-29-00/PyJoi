@@ -87,7 +87,7 @@ class TestIntSchema(unittest.TestCase):
             value: int
             value2: int
         s = PyJoi.Schema[TestTuple]("s",
-            value=PyJoi.Schema().int().min(PyJoi.Ref("value2")),
+            value=PyJoi.Schema().int().min(PyJoi.Ref("s.value2")),
             value2=PyJoi.Schema().int()
         )
         tup = s.validate({"value": 3, "value2": 2})

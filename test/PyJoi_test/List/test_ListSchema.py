@@ -22,7 +22,7 @@ class ListSchemaTest(unittest.TestCase):
 
     def test_matches_refs(self):
         Schema = PyJoi.Schema("schema",
-            lst=PyJoi.Schema().list().matches(PyJoi.Schema().int().max(PyJoi.Ref("max"))),
+            lst=PyJoi.Schema().list().matches(PyJoi.Schema().int().max(PyJoi.Ref("max"))), #We can reference 'max' directly because any non-object schemas in a list act as though they were elements of the list's parent for referencing purposes.
             max=PyJoi.Schema().int()
         )
         s = Schema.validate({"max": 12, "lst": [11, 12, 10, 9]})
