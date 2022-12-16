@@ -1,6 +1,6 @@
 import typing
 from . import Exceptions
-from .AbstractSchema import AbstractSchema, empty
+from .AbstractSchema import AbstractSchema
 from .Primitive.String.StringSchema import StringSchema as StringSchemaConstructor
 from .Primitive.String import StringSchema
 from .Primitive.Int.IntSchema import IntSchema as IntSchemaConstructor
