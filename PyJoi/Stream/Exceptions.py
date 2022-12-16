@@ -6,5 +6,5 @@ class NotIterableException(Exceptions.InvalidTypeException):
 class RequiredItemNotFound(Exceptions.InvalidElementException):
     pass
 
-class EmptyListException(Exceptions.EmptyElementException):
+class EmptyIterableException(Exceptions.EmptyElementException):
     pass

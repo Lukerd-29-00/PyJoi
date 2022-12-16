@@ -1,31 +1,30 @@
 """"""
 from .. import AbstractSchema, Exceptions
 import typing
-from . import Exceptions as ListExceptions
+from . import Exceptions as StreamExceptions
 import itertools
 from .. import SchemaSrc as Schema
 
 T = typing.TypeVar("T")
-class ListSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,typing.List[T],typing.Optional[str]]):
+A = typing.TypeVar("A")
+class StreamSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,T,typing.Optional[str]]):
+    """This is a schema designed to match any iterable object. Unlike other schemas, this will not return None if the iterable is empty or missing; the output will simply be an empty iterable. Note that a Ref to a StreamSchema instance is undefined behavior."""
     _has: typing.List[AbstractSchema.AbstractSchema]
     _matches: typing.Optional[AbstractSchema.AbstractSchema] = None
 
     def __init__(self,name: typing.Optional[str] = None, required: bool = True):
-        super(ListSchema,self).__init__(name,required=required)
+        """Initialize a StreamSchema."""
+        super(StreamSchema,self).__init__(name,required=required)
         self._has = []
     
-    def validate(self,iterable: any)->typing.Optional[typing.List[T]]:
+    def validate(self,iterable: any)->typing.Generator[T,None,None]:
+        """Validate some input using this schema. Note that this validate function is a generator, not a traditional function."""
         if iterable == None and self._required:
             raise Exceptions.MissingElementException(self._name,"Missing required list")
         elif iterable == None:
-            return None
+            return
         elif not isinstance(iterable,typing.Iterable):
-            raise ListExceptions.NotIterableException(self._name,"expected an iterable")
-        if not zip([1],iterable) and self._required: #The zip expression is used to determine if the iterable is empty. Depending on the iterable, this may be considerably computationally easier than calling len(), and will never be much worse.
-            raise ListExceptions.EmptyListException(self._name,"required list was empty.")
-        elif not zip([1],iterable):
-            return None
-        output = []
+            raise StreamExceptions.NotIterableException(self._name,"expected an iterable")
         hasFound = [False for _ in self._has]
         for item in iterable:
             subitem = item
@@ -40,17 +39,18 @@ class ListSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,typing.List
             if self._matches != None:
                 self._matches._depends_on = dict([(k, self._depends_on[k]) for k in self._matches._depends_on.keys()])
                 try:
-                    output.append(self._matches.validate(subitem)) #The _matches schema is done last.
+                    yield self._matches.validate(subitem) #The _matches schema is done last.
                 except Exceptions.ValidationException as V:
                     raise type(V)(self._name,V.vmessage)
             else:
-                output.append(subitem)
+                yield subitem
         for found in hasFound:
             if not found:
-                raise ListExceptions.RequiredItemNotFound(self._name,f"No match for a required schema was found.")
-        return output
+                raise StreamExceptions.RequiredItemNotFound(self._name,f"No match for a required schema was found.")
+        return
 
-    def matches(self, schema: AbstractSchema.AbstractSchema)->"ListSchema[T]":
+    def matches(self, schema: AbstractSchema.AbstractSchema[any,A,any])->"StreamSchema[A]":
+        """Assert that the stream passed to validate must match the provided schema. Transformations supplied by .custom will be applied."""
         self._matches = schema
         schema._parent = self
         if isinstance(schema,Schema.Schema):
@@ -59,10 +59,12 @@ class ListSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,typing.List
             self._depends_on.update(schema._depends_on)
         return self
     
-    def has(self, *schemas: AbstractSchema.AbstractSchema)->"ListSchema[T]":
+    def has(self, *schemas: AbstractSchema.AbstractSchema)->"StreamSchema[T]":
+        """Assert that the stream contains at least one element matching the provided schema(s). Note that the error for this is thown only after iteration is complete."""
         self._has.extend(schemas)
         return self
 
-    def optional(self)->"ListSchema[T]":
+    def optional(self)->"StreamSchema[T]":
+        """If the schema is optional, a missing or null value will be interpreted as an empty iterable."""
         self._required = False
         return self

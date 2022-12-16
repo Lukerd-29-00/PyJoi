@@ -4,11 +4,20 @@ from .AbstractSchema import AbstractSchema
 from .Primitive.String.StringSchema import StringSchema as StringSchemaConstructor
 from .Primitive.String import StringSchema
 from .Primitive.Int.IntSchema import IntSchema as IntSchemaConstructor
-from .List.ListSchema import ListSchema
+from .Stream.List.ListSchema import ListSchema
+from .Stream.StreamSchema import StreamSchema
 from .Primitive.Int import IntSchema
 import collections
 from collections import abc
 from .RefSrc import Ref
+
+def value_from_path(path: typing.List[str], data: typing.Dict[str,any]):
+        item = data
+        for i in range(len(path)):
+            item = item[path[i]]
+            if i != len(path)-1:
+                item = dict(item._asdict())
+        return item
 
 S = typing.TypeVar("S",bound=abc.Hashable)
 class OrderedSet(typing.Generic[S]):
@@ -99,23 +108,17 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
         """Create an int schema."""
         return IntSchemaConstructor(self._name,required=self._required)
 
-    def list(self)->ListSchema:
+    def list(self)->"ListSchema":
         return ListSchema(self._name,self._required)
+
+    def stream(self)->"StreamSchema":
+        return StreamSchema(self._name,self._required)
 
     def _resolve_dependency_chain(self, ref: Ref, chain: OrderedSet)->None:
         for dependency in self._fields[ref._path]._depends_on.keys():
             if len(dependency._path.split('.')) == 1:
                 self._resolve_dependency_chain(dependency,chain)
         chain.append(ref._path)
-
-    @staticmethod
-    def _value_from_path(path: typing.List[str], data: typing.Dict[str,any]):
-        item = data
-        for i in range(len(path)):
-            item = item[path[i]]
-            if i != len(path)-1:
-                item = dict(item._asdict())
-        return item
 
     def validate(self,object: typing.Optional[typing.Dict[str,any]])->typing.Optional[T]:
         """Validate an object (Python dictionary from strings to anything that can be represented by another Schema).
@@ -151,7 +154,7 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
                 for dep in self._fields[key]._depends_on.keys():
                     if dep.root != '' or self._parent == None:
                         path = dep.path
-                        self._fields[key]._depends_on[dep] = self._value_from_path(path if path[0] != '' else path[1:],data)
+                        self._fields[key]._depends_on[dep] = value_from_path(path if path[0] != '' else path[1:],data)
                 data[key] = self._fields[key].validate(None if not key in object.keys() else object[key])
         except Exceptions.ValidationException as V:
             raise type(V)(f"{self._name}.{V.name}",V.vmessage)
