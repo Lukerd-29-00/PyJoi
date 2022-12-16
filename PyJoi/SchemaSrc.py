@@ -48,10 +48,12 @@ class OrderedSet(typing.Generic[S]):
     def insert(self,item: S, index: int)->None:
         if not item in self._contains:
             self._list.insert(item,index)
+        self._contains.add(item)
 
     def prepend(self, item: S)->None:
         if not item in self._contains:
             self._list = [item] + self._list
+        self._contains.add(item)
 
     def __getitem__(self,index: int)->S:
         return self._list[index]
