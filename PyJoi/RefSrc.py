@@ -1,3 +1,28 @@
+"""This is an object that helps items within a schema reference each other.
+
+Refs paths are represented as teh objects that contain the value followed by the value separated by dots.
+
+Example usage:
+Schema("s",
+    value1=Schema().something(Ref("s.value2")), or just "value2"
+    value2=Schema()
+)
+
+Schema("s",
+
+    object1=Schema(
+        value=Schema().something(Ref("s.bound"))
+    ),
+    bound=Schema()
+)
+
+Schema("s",
+    object1=Schema(
+        value=Schema()
+    ),
+    bound=Schema().something(Ref("s.object1.bound")) or just "object1.bound"
+)
+"""
 import typing
 if typing.TYPE_CHECKING:
     from .AbstractSchema import AbstractSchema

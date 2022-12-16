@@ -40,15 +40,15 @@ class AbstractSchema(abc.ABC,typing.Generic[T,V,N]):
     
     def _add_parent_refs(self):
         for ref in self._depends_on.keys():
-            self._add_parent_ref(ref)
+            if ref.root == '' and self._parent != None:
+                self._parent._add_parent_ref(ref)
 
     def _add_parent_ref(self, ref: Ref):
-        path = str(ref).split('.')
-        if len(path) > 1 and self._name != path[0] and self._parent != None:
-            newRef = Ref(str(ref))
-            self._add_ref(newRef)
-            self._parent._add_parent_ref(newRef)
-        
+        self._add_ref(Ref(ref._path))
+        if self._parent != None:
+            self._parent._add_parent_ref(ref)
+    
+
     @abc.abstractmethod
     def validate(self, value: T)->typing.Optional[V]:
         pass

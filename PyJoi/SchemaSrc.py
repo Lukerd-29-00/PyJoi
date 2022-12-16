@@ -106,6 +106,15 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
                 self._resolve_dependency_chain(dependency,chain)
         chain.append(ref._path)
 
+    @staticmethod
+    def _value_from_path(path: typing.List[str], data: typing.Dict[str,any]):
+        item = data
+        for i in range(len(path)):
+            item = item[path[i]]
+            if i != len(path)-1:
+                item = dict(item._asdict())
+        return item
+
     def validate(self,object: typing.Optional[typing.Dict[str,any]])->typing.Optional[T]:
         """Validate an object (Python dictionary from strings to anything that can be represented by another Schema).
 
@@ -116,7 +125,7 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
             The dictionary put in, or None if the input was empty or None. An exception will be thrown if the validation fails.
         """
         if not self._fields:
-            raise ValueError("Error: empty Schema encountered!")
+            raise ValueError("Error: empty Schema encountered!") #TODO: Make these assertions so they can be optimized out for production.
         elif self._name == None:
             raise ValueError("Error: Schema has no name!")
         elif object == None and not self._required:
@@ -129,19 +138,18 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
         Keys = OrderedSet[str]()
         for key in self._fields.keys():
             for ref in self._fields[key]._depends_on.keys():
-                if ref in self._depends_on.keys():
+                if self._parent != None and ref.path[0] == '':
                     self._fields[key]._depends_on[ref] = self._depends_on[ref] #Inject any values from resolved refs injected from above.
-                elif self._name == ref.root:
-                    Keys.append(ref.path[1])
                 else:
-                    Keys.append(str(ref))                
+                    Keys.append(ref.path[0] if ref.path[0] != '' else ref.path[1])                
             Keys.append(key)
         data = {}
         try:
             for key in Keys:
                 for dep in self._fields[key]._depends_on.keys():
-                    if not dep in self._depends_on.keys():
-                        self._fields[key]._depends_on[dep] = data[str(dep) if len(dep.path) == 1 else dep.path[1]]
+                    if dep.root != '' or self._parent == None:
+                        path = dep.path
+                        self._fields[key]._depends_on[dep] = self._value_from_path(path if path[0] != '' else path[1:],data)
                 data[key] = self._fields[key].validate(None if not key in object.keys() else object[key])
         except Exceptions.ValidationException as V:
             raise type(V)(f"{self._name}.{V.name}",V.vmessage)
