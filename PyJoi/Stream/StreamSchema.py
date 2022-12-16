@@ -17,7 +17,7 @@ class StreamSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,T,typing.
         super(StreamSchema,self).__init__(name,required=required)
         self._has = []
     
-    def validate(self,iterable: any)->typing.Generator[T,None,None]:
+    def validate(self,iterable: any)->typing.Iterable[T]:
         """Validate some input using this schema. Note that this validate function is a generator, not a traditional function."""
         if iterable == None and self._required:
             raise Exceptions.MissingElementException(self._name,"Missing required list")

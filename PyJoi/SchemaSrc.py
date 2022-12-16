@@ -6,6 +6,7 @@ from .Primitive.String import StringSchema
 from .Primitive.Int.IntSchema import IntSchema as IntSchemaConstructor
 from .Stream.List.ListSchema import ListSchema
 from .Stream.StreamSchema import StreamSchema
+from .Stream.Set.SetSchema import SetSchema
 from .Primitive.Int import IntSchema
 import collections
 from collections import abc
@@ -114,11 +115,8 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
     def stream(self)->"StreamSchema":
         return StreamSchema(self._name,self._required)
 
-    def _resolve_dependency_chain(self, ref: Ref, chain: OrderedSet)->None:
-        for dependency in self._fields[ref._path]._depends_on.keys():
-            if len(dependency._path.split('.')) == 1:
-                self._resolve_dependency_chain(dependency,chain)
-        chain.append(ref._path)
+    def set(self)->"SetSchema":
+        return SetSchema(self._name,self._required)
 
     def validate(self,object: typing.Optional[typing.Dict[str,any]])->typing.Optional[T]:
         """Validate an object (Python dictionary from strings to anything that can be represented by another Schema).
