@@ -9,13 +9,13 @@ class TestRef(unittest.TestCase):
         schema = PyJoi.Schema("schema",
             obj=PyJoi.Schema(
                 obj=PyJoi.Schema(
-                    value=PyJoi.Schema().int(),
-                    value2=PyJoi.Schema().int().min(PyJoi.Ref[int]("value"))
+                    value=PyJoi.int(),
+                    value2=PyJoi.int().min(PyJoi.Ref[int]("value"))
                 ),
-                value=PyJoi.Schema().int()
+                value=PyJoi.int()
             ),
-            value=PyJoi.Schema().int().min(PyJoi.Ref[int]("obj.value")),
-            value2=PyJoi.Schema().int().min(PyJoi.Ref[int]("obj.obj.value"))
+            value=PyJoi.int().min(PyJoi.Ref[int]("obj.value")),
+            value2=PyJoi.int().min(PyJoi.Ref[int]("obj.obj.value"))
         )
         
         item = schema.validate(
@@ -84,14 +84,14 @@ class TestRef(unittest.TestCase):
 
     def test_absolute_resolution(self):
         schema = PyJoi.Schema("schema",
-            min=PyJoi.Schema().int(),
+            min=PyJoi.int(),
             max_obj=PyJoi.Schema(
-                value=PyJoi.Schema().int()
+                value=PyJoi.int()
             ),
             container=PyJoi.Schema(
-                value=PyJoi.Schema().int().min(PyJoi.Ref[int](".min")).max(PyJoi.Ref[int](".max_obj.value")),
+                value=PyJoi.int().min(PyJoi.Ref[int](".min")).max(PyJoi.Ref[int](".max_obj.value")),
                 subContainer=PyJoi.Schema(
-                    value=PyJoi.Schema().int().min(PyJoi.Ref[int](".min")).max(PyJoi.Ref[int](".max_obj.value"))
+                    value=PyJoi.int().min(PyJoi.Ref[int](".min")).max(PyJoi.Ref[int](".max_obj.value"))
                 )
             )
         )
@@ -168,5 +168,3 @@ class TestRef(unittest.TestCase):
                     }
                 }
             })
-
-

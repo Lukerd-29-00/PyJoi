@@ -6,14 +6,14 @@ from PyJoi.Stream import Exceptions as StreamExceptions
 class StreamSchemaTest(unittest.TestCase):
 
     def test_has(self):
-        Schema = PyJoi.Schema().stream().has(PyJoi.Schema().int())
+        Schema = PyJoi.stream().has(PyJoi.int())
         s = Schema.validate([1,"2"])
         self.assertListEqual(list(s),[1,"2"])
         with self.assertRaises(StreamExceptions.RequiredItemNotFound):
             set(Schema.validate(["2","3","4"]))
 
     def test_matches(self):
-        Schema = PyJoi.Schema("lst").stream().matches(PyJoi.Schema().int())
+        Schema = PyJoi.stream("lst").matches(PyJoi.int())
         s = Schema.validate([1,2])
         self.assertListEqual(list(s),[1,2])
         with self.assertRaises(IntExceptions.NotAnIntException) as cm:
@@ -22,8 +22,8 @@ class StreamSchemaTest(unittest.TestCase):
 
     def test_matches_refs(self):
         Schema = PyJoi.Schema("schema",
-            lst=PyJoi.Schema().stream().matches(PyJoi.Schema().int().max(PyJoi.Ref("max"))), #We can reference 'max' directly because any non-object schemas in a list act as though they were elements of the list's parent for referencing purposes.
-            max=PyJoi.Schema().int()
+            lst=PyJoi.stream().matches(PyJoi.int().max(PyJoi.Ref("max"))), #We can reference 'max' directly because any non-object schemas in a list act as though they were elements of the list's parent for referencing purposes.
+            max=PyJoi.int()
         )
         s = Schema.validate({"max": 12, "lst": [11, 12, 10, 9]})
         self.assertEqual(s.max,12)

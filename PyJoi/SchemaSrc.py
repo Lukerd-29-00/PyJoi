@@ -1,16 +1,8 @@
 import typing
 from . import Exceptions
 from .AbstractSchema import AbstractSchema
-from .Primitive.String.StringSchema import StringSchema as StringSchemaConstructor
-from .Primitive.String import StringSchema
-from .Primitive.Int.IntSchema import IntSchema as IntSchemaConstructor
-from .Stream.List.ListSchema import ListSchema
-from .Stream.StreamSchema import StreamSchema
-from .Stream.Set.SetSchema import SetSchema
-from .Primitive.Int import IntSchema
 import collections
 from collections import abc
-from .RefSrc import Ref
 
 def value_from_path(path: typing.List[str], data: typing.Dict[str,any]):
         item = data
@@ -98,25 +90,6 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
                 self._fields[k]._name = k
                 self._fields[k]._parent = self
                 self._fields[k]._add_parent_refs()
-
-    def string(self)->StringSchema:
-        """Create a string schema."""
-        if self._fields != None:
-            raise ValueError("Cannot create string schema from an object schema with parameters!")
-        return StringSchemaConstructor(self._name,required=self._required)
-
-    def int(self)->IntSchema:
-        """Create an int schema."""
-        return IntSchemaConstructor(self._name,required=self._required)
-
-    def list(self)->"ListSchema":
-        return ListSchema(self._name,self._required)
-
-    def stream(self)->"StreamSchema":
-        return StreamSchema(self._name,self._required)
-
-    def set(self)->"SetSchema":
-        return SetSchema(self._name,self._required)
 
     def validate(self,object: typing.Optional[typing.Dict[str,any]])->typing.Optional[T]:
         """Validate an object (Python dictionary from strings to anything that can be represented by another Schema).
