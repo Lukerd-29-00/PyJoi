@@ -54,6 +54,9 @@ class IIntSchema(PrimitiveSchema[int],abc.ABC):
     @abc.abstractmethod
     def port_nonadmin(self)->"IIntSchema":
         pass
-
-    def optional(self)->"IIntSchema":
-        return super(IIntSchema,self).optional()
+    
+    if typing.TYPE_CHECKING:
+        def optional(self)->"IIntSchema":
+            pass
+        def custom(self, func: typing.Callable, *refs: Ref)->"IIntSchema":
+            pass

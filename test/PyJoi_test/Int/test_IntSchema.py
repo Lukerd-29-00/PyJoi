@@ -126,3 +126,26 @@ class TestIntSchema(unittest.TestCase):
             s.validate(65536)
         with self.assertRaises(Exceptions.InvalidSizeException):
             s.validate(1023)
+    
+    def test_custom(self):
+        def lt_five(name: str, x: int)->int:
+            if x < 5:
+                return x
+            else:
+                raise Exceptions.InvalidSizeException(name,f"{x} is not less than 5.")
+        s = PyJoi.Schema().int().custom(lt_five)
+        self.assertEqual(s.validate(4),4)
+        with self.assertRaises(Exceptions.InvalidSizeException):
+            s.validate(5)
+        def less_than(name: str, x: int, y: int)->int:
+            if x < y:
+                return x
+            else:
+                raise Exceptions.InvalidSizeException(name,f"{x} is not less than {y}.")
+        s = PyJoi.Schema("s",
+            less=PyJoi.Schema().int().custom(less_than,PyJoi.Ref("more")),
+            more=PyJoi.Schema().int()
+        )
+        self.assertEqual(s.validate({"less": 3, "more": 5}).less,3)
+        with self.assertRaises(Exceptions.InvalidSizeException):
+            s.validate({"less": 5, "more": 5})

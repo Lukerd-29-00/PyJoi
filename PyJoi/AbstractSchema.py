@@ -48,7 +48,6 @@ class AbstractSchema(abc.ABC,typing.Generic[T,V,N]):
         if self._parent != None:
             self._parent._add_parent_ref(ref)
     
-
     @abc.abstractmethod
     def validate(self, value: T)->typing.Optional[V]:
         pass

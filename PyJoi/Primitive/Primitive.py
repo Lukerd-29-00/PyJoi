@@ -4,8 +4,10 @@ from .. import AbstractSchema
 import typing
 import datetime
 import abc
+from .. import RefSrc
 
 T = typing.TypeVar("T",int,str,float,datetime.datetime)
+
 class PrimitiveSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,T,typing.Optional[str]],abc.ABC):
     R = typing.TypeVar("R") #I wish I could add R extends T, but python doesn't let me do that :(
     _or: typing.Optional["PrimitiveSchema[R]"] = None
@@ -68,4 +70,10 @@ class PrimitiveSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,T,typi
 
     def union(self, schema: 'PrimitiveSchema[R]')->'PrimitiveSchema[typing.Union[T,R]]':
         self._or = schema
+        return self
+
+    def custom(self, func: typing.Callable, *refs: RefSrc.Ref)->'PrimitiveSchema[T]':
+        for r in refs:
+            self._add_ref(r)
+        self._checks.append(lambda v: func(self._name,v,*[r.value for r in refs]))
         return self
