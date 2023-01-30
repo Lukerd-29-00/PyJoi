@@ -91,6 +91,11 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
                 self._fields[k]._parent = self
                 self._fields[k]._add_parent_refs()
 
+    def primary_key(self, *keys: str)->"Schema[T]":
+        self._primary_key = set(keys)
+
+
+
     def validate(self,object: typing.Optional[typing.Dict[str,any]])->typing.Optional[T]:
         """Validate an object (Python dictionary from strings to anything that can be represented by another Schema).
 

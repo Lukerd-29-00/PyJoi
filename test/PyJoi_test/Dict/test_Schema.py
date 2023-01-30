@@ -1,7 +1,7 @@
 import unittest
 import PyJoi
 from PyJoi import Exceptions
-from PyJoi.Primitive.Int import Exceptions as IntExceptions
+from PyJoi.Primitive.Numeric.Int import Exceptions as IntExceptions
 import typing
 
 class TestSchema(unittest.TestCase):

@@ -1,10 +1,5 @@
-from .. import Exceptions
-import abc
-
+from ... import Exceptions
 class NotAnIntException(Exceptions.InvalidPrimitiveTypeException):
-    pass
-
-class InvalidSizeException(Exceptions.InvalidPrimitiveElementException):
     pass
 
 class NonMultipleException(Exceptions.InvalidPrimitiveElementException):

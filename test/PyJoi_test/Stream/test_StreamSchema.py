@@ -1,6 +1,7 @@
 import unittest
 import PyJoi
-from PyJoi.Primitive.Int import Exceptions as IntExceptions
+from PyJoi.Primitive.Numeric.Int import Exceptions as IntExceptions
+from PyJoi.Primitive.Numeric import Exceptions as NumericExceptions
 from PyJoi.Stream import Exceptions as StreamExceptions
 
 class StreamSchemaTest(unittest.TestCase):
@@ -28,5 +29,5 @@ class StreamSchemaTest(unittest.TestCase):
         s = Schema.validate({"max": 12, "lst": [11, 12, 10, 9]})
         self.assertEqual(s.max,12)
         self.assertListEqual(list(s.lst),[11,12,10,9])
-        with self.assertRaises(IntExceptions.InvalidSizeException):
+        with self.assertRaises(NumericExceptions.InvalidSizeException):
             next(Schema.validate({"max": -1, "lst": [11, 12, 10, 9]}).lst)

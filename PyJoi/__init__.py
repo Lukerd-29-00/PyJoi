@@ -1,12 +1,11 @@
 from .SchemaSrc import Schema
 from .RefSrc import Ref
 from .Primitive.String.StringSchema import StringSchema
-from .Primitive.String import StringSchema
-from .Primitive.Int.IntSchema import IntSchema
+from .Primitive.Numeric.Int.IntSchema import IntSchema
 from .Stream.List.ListSchema import ListSchema
 from .Stream.StreamSchema import StreamSchema
 from .Stream.Set.SetSchema import SetSchema
-from .Primitive.Int import IntSchema
+from .Primitive.Numeric.Int.IntSchema import IntSchema
 from .Primitive.Bool import BoolSchema
 import typing
 
