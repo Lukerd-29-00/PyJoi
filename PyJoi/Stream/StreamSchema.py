@@ -1,23 +1,22 @@
-""""""
 from .. import AbstractSchema, Exceptions
 import typing
 from . import Exceptions as StreamExceptions
 import itertools
 from .. import SchemaSrc as Schema
 
-T = typing.TypeVar("T")
+T = typing.TypeVar("T",bound=typing.Union[typing.Iterable,typing.Optional[typing.Iterable]])
 A = typing.TypeVar("A")
-class StreamSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,T,typing.Optional[str]]):
+class StreamSchema(typing.Generic[T],AbstractSchema.AbstractSchema[T]):
     """This is a schema designed to match any iterable object. Unlike other schemas, this will not return None if the iterable is empty or missing; the output will simply be an empty iterable. Note that a Ref to a StreamSchema instance is undefined behavior."""
     _has: typing.List[AbstractSchema.AbstractSchema]
     _matches: typing.Optional[AbstractSchema.AbstractSchema] = None
 
-    def __init__(self,name: typing.Optional[str] = None, required: bool = True):
+    def __init__(self,name: typing.Optional[str] = None):
         """Initialize a StreamSchema."""
-        super(StreamSchema,self).__init__(name,required=required)
+        super(StreamSchema,self).__init__(name)
         self._has = []
     
-    def validate(self,iterable: any)->typing.Iterable[T]:
+    def _validate(self,iterable: any)->T:
         """Validate some input using this schema. Note that this validate function is a generator, not a traditional function."""
         if iterable == None and self._required:
             raise Exceptions.MissingElementException(self._name,"Missing required list")
@@ -49,7 +48,7 @@ class StreamSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,T,typing.
                 raise StreamExceptions.RequiredItemNotFound(self._name,f"No match for a required schema was found.")
         return
 
-    def matches(self, schema: AbstractSchema.AbstractSchema[any,A,any])->"StreamSchema[A]":
+    def matches(self, schema: AbstractSchema.AbstractSchema[A])->"StreamSchema[typing.Iterable[A]]":
         """Assert that the stream passed to validate must match the provided schema. Transformations supplied by .custom will be applied."""
         self._matches = schema
         schema._parent = self
@@ -64,7 +63,6 @@ class StreamSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,T,typing.
         self._has.extend(schemas)
         return self
 
-    def optional(self)->"StreamSchema[T]":
-        """If the schema is optional, a missing or null value will be interpreted as an empty iterable."""
-        self._required = False
-        return self
+    if typing.TYPE_CHECKING:
+        def optional(self)->"StreamSchema[typing.Optional[T]]":
+            pass

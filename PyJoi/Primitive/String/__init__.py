@@ -1,1 +1,1 @@
-from .IStringSchema import IStringSchema as StringSchema
+from .StringSchema import StringSchema

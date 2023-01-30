@@ -69,21 +69,21 @@ class OrderedSet(typing.Generic[S]):
     def __iter__(self)->typing.Iterator[S]:
         return iter(self._list)
 
-T = typing.TypeVar("T",bound=typing.NamedTuple)
-class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,any]],T,str]):
+T = typing.TypeVar("T")
+class Schema(typing.Generic[T],AbstractSchema[T]):
     _fields: typing.Dict[str,"AbstractSchema"] = None
     _name: str
     _required: bool = True
     _values: typing.Dict[str,any]
 
-    def __init__(self, name: typing.Optional[str] = None, required: bool = True, **kwargs: "AbstractSchema"):
+    def __init__(self, name: typing.Optional[str] = None, **kwargs: "AbstractSchema"):
         """Create a PyJoi Schema.
         
         Args:
             name: The optional name of the schema. If this Schema is nested within another one, its name will be inferred.
             required: Whether or not this schema is required for the enclosing object to be valid. Can be set to False with .optional().
         """
-        super(Schema,self).__init__(name,required=required)
+        super(Schema,self).__init__(name)
         if kwargs:
             self._fields = dict(kwargs)
             for k in self._fields.keys():
@@ -91,12 +91,7 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
                 self._fields[k]._parent = self
                 self._fields[k]._add_parent_refs()
 
-    def primary_key(self, *keys: str)->"Schema[T]":
-        self._primary_key = set(keys)
-
-
-
-    def validate(self,object: typing.Optional[typing.Dict[str,any]])->typing.Optional[T]:
+    def _validate(self,object: typing.Optional[typing.Dict[str,any]])->T:
         """Validate an object (Python dictionary from strings to anything that can be represented by another Schema).
 
         Args:
@@ -142,5 +137,6 @@ class Schema(typing.Generic[T],AbstractSchema[typing.Optional[typing.Dict[str,an
         else:
             return None
 
-    def optional(self)->"Schema[T]":
-        return super(Schema,self).optional()
+    if typing.TYPE_CHECKING:
+        def optional(self)->"Schema[typing.Optional[T]]":
+            pass

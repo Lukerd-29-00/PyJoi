@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 import PyJoi
 from PyJoi import Exceptions
 from PyJoi.Primitive.Numeric.Int import Exceptions as IntExceptions
@@ -53,3 +54,21 @@ class TestSchema(unittest.TestCase):
     def test_requires_dict(self):
         with self.assertRaises(Exceptions.NotAnObjectException):
             PyJoi.Schema("S",a=PyJoi.int()).validate(1)
+
+    def test_union(self):
+        m1 = mock.Mock()
+        m2 = mock.Mock()
+        m1.validate.return_value=2
+        m1._depends_on = {}
+        schema = PyJoi.Schema("schema",key=m1).union(m2)
+        schema.validate({"key": 2})
+        class TestException(Exceptions.ValidationException):
+            pass
+        m1.validate.assert_called_once_with(2)
+        m1.reset_mock()
+        m1.validate.side_effect = TestException("key","some error")
+        m2.validate.return_value={"key": 2}
+        data = {"key": 2}
+        schema.validate({"key": 2})
+        m1.validate.assert_called_once_with(2)
+        m2.validate.assert_called_once_with(data)

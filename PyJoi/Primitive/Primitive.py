@@ -2,22 +2,21 @@ from . import Exceptions
 from .. import Exceptions as GenericExceptions
 from .. import AbstractSchema
 import typing
-import datetime
 import abc
 from .. import RefSrc
 
-T = typing.TypeVar("T",int,str,float,datetime.datetime)
+T = typing.TypeVar("T")
 
-class PrimitiveSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,T,typing.Optional[str]],abc.ABC):
+class PrimitiveSchema(typing.Generic[T],AbstractSchema.AbstractSchema[T],abc.ABC):
     R = typing.TypeVar("R") #I wish I could add R extends T, but python doesn't let me do that :(
-    _or: typing.Optional["PrimitiveSchema[R]"] = None
+    V = typing.TypeVar("V")
     _checks: typing.List[typing.Union[typing.Callable[[T],typing.Optional[T]],typing.Callable[[T],T]]]
 
-    def __init__(self, name: typing.Optional[str] = None, required: bool = True):
-        super(PrimitiveSchema,self).__init__(name,required=required)
+    def __init__(self, name: typing.Optional[str] = None):
+        super(PrimitiveSchema,self).__init__(name)
         self._checks = []
 
-    def whitelist(self, items: typing.Union[T,typing.Iterable[T]],primitive: type)->"PrimitiveSchema":
+    def whitelist(self, items: typing.Union[T,typing.Iterable[T]],primitive: type)->"PrimitiveSchema[T]":
         if not isinstance(items[0],primitive) and len(items) > 1:
             raise ValueError("Cannot blacklist several iterables at once!")
         elif not isinstance(items[0],primitive):
@@ -28,7 +27,7 @@ class PrimitiveSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,T,typi
             self._checks.append(lambda value: self._check_whitelist(value,whitelist))
         return self
 
-    def blacklist(self, items: typing.Union[str,typing.Iterable[str]],primitive: type)->"PrimitiveSchema":
+    def blacklist(self, items: typing.Union[str,typing.Iterable[str]],primitive: type)->"PrimitiveSchema[T]":
         if not isinstance(items[0],primitive) and len(items) > 1:
             raise ValueError("Cannot blacklist several iterables at once!")
         elif not isinstance(items[0],primitive):
@@ -48,32 +47,27 @@ class PrimitiveSchema(typing.Generic[T],AbstractSchema.AbstractSchema[any,T,typi
         if not value in whitelist:
             raise Exceptions.NonWhiteListedValueException(self._name,f"{value} not in whitelist")
         return value
+
+    def custom(self, func: typing.Callable, *refs: RefSrc.Ref)->'PrimitiveSchema':
+        for r in refs:
+            self._add_ref(r)
+        self._checks.append(lambda v: func(self._name,v,*[r.value for r in refs]))
+        return self
         
-    def validate(self,value: any)->typing.Optional[T]:
+    def _validate(self,value: any)->T:
         subvalue = value
-        try:
-            for check in self._checks:
-                if subvalue == None and self._required:
-                    raise GenericExceptions.MissingElementException(self._name,"Missing exepcted element, or got an unexpected null.")
-                elif subvalue == None:
-                    return None
-                subvalue = check(subvalue)
-        except GenericExceptions.ValidationException as V:
-            if self._or != None:
-                return self._or.validate(value) #this is in fact type-safe as long as _or is assigned via the union method and assigned to something like this: a = Schema().int().union(...)
-            raise V
+        for check in self._checks:
+            if subvalue == None and self._required:
+                raise GenericExceptions.MissingElementException(self._name,"Missing exepcted element, or got an unexpected null.")
+            elif subvalue == None:
+                return None
+            subvalue = check(subvalue)
         if subvalue == None and self._required:
             raise GenericExceptions.MissingElementException(self._name,"Missing exepcted element, or got an unexpected null.")
         elif subvalue == None:
             return None
         return subvalue
 
-    def union(self, schema: 'PrimitiveSchema[R]')->'PrimitiveSchema[typing.Union[T,R]]':
-        self._or = schema
-        return self
-
-    def custom(self, func: typing.Callable, *refs: RefSrc.Ref)->'PrimitiveSchema[T]':
-        for r in refs:
-            self._add_ref(r)
-        self._checks.append(lambda v: func(self._name,v,*[r.value for r in refs]))
-        return self
+    if typing.TYPE_CHECKING:
+        def optional(self)->"PrimitiveSchema[typing.Optional[T]]":
+            pass

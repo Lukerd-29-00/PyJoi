@@ -14,22 +14,20 @@ class Empty():
 
 empty = Empty() #This is used instead of None for initial dependency values in order to raise this custom error if an invalid ref is invoked.
 
-T = typing.TypeVar("T")
 V = typing.TypeVar("V")
-N = typing.TypeVar("N",str,typing.Optional[str])
-class AbstractSchema(abc.ABC,typing.Generic[T,V,N]):
-    _name: N
-    _required: bool
+class AbstractSchema(abc.ABC,typing.Generic[V]):
+    _name: typing.Optional[str]
+    _required: bool = True
     _parent: typing.Optional["Schema"] = None
     _depends_on: typing.Dict[Ref,any]
-    R = typing.TypeVar("R")
+    _or: typing.Optional["AbstractSchema"] = None
+    T = typing.TypeVar("T")
 
-    def __init__(self,name: typing.Optional[str] = None, required: bool = True):
+    def __init__(self, name: str):
         self._name = name
-        self._required = required
         self._depends_on = {}
 
-    def optional(self)->"AbstractSchema[T,V,N]":
+    def optional(self)->"AbstractSchema[typing.Optional[V]]":
         """Indicates that this field is optional. An optional Schema will also accept empty objects. Any missing fields will be assigned to None."""
         self._required = False
         return self
@@ -48,6 +46,20 @@ class AbstractSchema(abc.ABC,typing.Generic[T,V,N]):
         if self._parent != None:
             self._parent._add_parent_ref(ref)
     
+    def union(self, schema: 'AbstractSchema[T]')->'AbstractSchema[typing.Union[T,V]]':
+        self._or = schema
+        return self
+    
     @abc.abstractmethod
-    def validate(self, value: T)->typing.Optional[V]:
+    def _validate(self, value: any)->V:
         pass
+
+    def validate(self, value: any)->V:
+        try:
+            return self._validate(value)
+        except Exceptions.ValidationException as V:
+            if self._or != None:
+                return self._or.validate(value)
+            else:
+                raise V
+

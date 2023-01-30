@@ -3,19 +3,18 @@ from .. import StreamSchema
 from ... import AbstractSchema
 import typing
 
-T = typing.TypeVar("T")
+T = typing.TypeVar("T",bound=typing.Union[typing.List,typing.Optional[typing.List]])
 A = typing.TypeVar("A")
 class ListSchema(typing.Generic[T],StreamSchema.StreamSchema[T]):
-    
-    def validate(self,iterable: any)->typing.List[T]:
-        return list(super(ListSchema,self).validate(iterable))
+    def _validate(self,iterable: any)->T:
+        return list(super(ListSchema,self)._validate(iterable))
 
     if typing.TYPE_CHECKING:
-        def matches(self, schema: AbstractSchema.AbstractSchema[any,A,any])->"ListSchema[A]":
+        def matches(self, schema: AbstractSchema.AbstractSchema[A])->"ListSchema[typing.List[A]]":
             pass
     
         def has(self, *schemas: AbstractSchema.AbstractSchema)->"ListSchema[T]":
             pass
 
-        def optional(self)->"ListSchema[T]":
+        def optional(self)->"ListSchema[typing.Optional[T]]":
             pass
