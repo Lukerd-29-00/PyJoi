@@ -1,6 +1,5 @@
 import unittest
 import PyJoi
-import typing
 from PyJoi.Primitive.Numeric import Exceptions as IntExceptions
 
 class TestRef(unittest.TestCase):
