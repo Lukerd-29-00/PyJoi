@@ -36,12 +36,15 @@ class ListSchemaTest(unittest.TestCase):
             else:
                 raise util.TestException(None,"too large")
         num.validate = is_less
+        mx = util.SchemaMock()
+        mx.validate.return_value = 12
         Schema = PyJoi.Schema("schema",
             lst=PyJoi.list().matches(num),
-            max=PyJoi.int()
+            max=mx
         )
         s = Schema.validate({"max": 12, "lst": [11, 12, 10, 9]})
         self.assertEqual(s.max,12)
         self.assertListEqual(s.lst,[11,12,10,9])
+        mx.validate.return_value = -1
         with self.assertRaises(util.TestException):
             Schema.validate({"max": -1, "lst": [11, 12, 10, 9]})

@@ -9,11 +9,11 @@ from .Primitive.Numeric.Int.IntSchema import IntSchema
 from .Primitive.Bool import BoolSchema
 import typing
 
-def string(name: typing.Optional[str] = None)->StringSchema:
+def string(name: typing.Optional[str] = None)->StringSchema[str]:
     """Create a string schema."""
     return StringSchema(name)
 
-def int(name: typing.Optional[str] = None)->IntSchema:
+def int(name: typing.Optional[str] = None)->IntSchema[int]:
     """Create an int schema."""
     return IntSchema(name)
 
