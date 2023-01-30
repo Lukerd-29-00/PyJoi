@@ -1,17 +1,32 @@
-import unittest
 import PyJoi
 from PyJoi.Primitive.String import Exceptions
-from PyJoi.Primitive import Exceptions as PrimitiveExceptions
-from PyJoi import Exceptions as TopExceptions
-class TestStringSchema(unittest.TestCase):
-    def test_optional(self):
-        self.assertIsNone(PyJoi.string().optional().validate(None))
-        with self.assertRaises(TopExceptions.MissingElementException):
-            PyJoi.string().validate(None)
+from PyJoi.Primitive.String import StringSchema
+from .. import Common
+import typing
+from ... import util
 
-    def test_rejects_non_string(self):
-        with self.assertRaises(Exceptions.NotAStringException):
-            PyJoi.string().validate(1)
+class TestStringSchema(Common.PrimitiveSchemaTest[str,str,StringSchema]):
+    instance1 = "hello"
+    instance2 = "world"
+    output_instance = "hello"
+    noninstance = 2
+    custom_fail = "hello"
+    custom_success = "ab"
+
+    def schema_factory(self, name: typing.Optional[str] = None)->StringSchema[str]:
+        return PyJoi.string()
+
+    def _custom_check(self, name: str, x: str) -> str:
+        if len(x) < 3:
+            return x
+        else:
+            raise util.TestException(name,f"{x} is at least 3 characters.")
+
+    def _custom_check_ref(self, name: str, x: str, y: str) -> str:
+        if len(x) < len(y):
+            return x
+        else:
+            raise util.TestException(name,f"{x} is at least {len(y)} characters.")
 
     def test_length_bounds(self):
         s = PyJoi.string().max_len(3)
@@ -27,35 +42,6 @@ class TestStringSchema(unittest.TestCase):
         with self.assertRaises(Exceptions.NonMatchingLengthException):
             s.validate("hi")
         with self.assertRaises(Exceptions.NonMatchingLengthException):
-            s.validate("hello")
-
-    def test_accepts_in_whitelist(self):
-        value = PyJoi.string().whitelist("hi").validate("hi")
-        self.assertEqual(value,"hi")
-        s = PyJoi.string().whitelist(["hi","hello"])
-        self.assertEqual(s.validate("hi"),"hi")
-        self.assertEqual(s.validate("hello"),"hello")
-
-    def test_whitelist_rejects_outsiders(self):
-        with self.assertRaises(PrimitiveExceptions.NonWhiteListedValueException):
-            PyJoi.string().whitelist("hi").validate("hello")
-        s = PyJoi.string().whitelist(["hi", "hello"])
-        with self.assertRaises(PrimitiveExceptions.NonWhiteListedValueException):
-            s.validate("yes")
-
-    def test_blacklist_accepts_outsiders(self):
-        value = PyJoi.string().blacklist("hi").validate("hello")
-        self.assertEqual(value,"hello")
-        value = PyJoi.string().blacklist(["hi", "hello"]).validate("yes")
-        self.assertEqual(value,"yes")
-
-    def test_blacklist_rejects_outsiders(self):
-        with self.assertRaises(PrimitiveExceptions.BlackListedValueException):
-            PyJoi.string().blacklist("hi").validate("hi")
-        s = PyJoi.string().blacklist(["hi","hello"])
-        with self.assertRaises(PrimitiveExceptions.BlackListedValueException):
-            s.validate("hi")
-        with self.assertRaises(PrimitiveExceptions.BlackListedValueException):
             s.validate("hello")
 
     def test_hex(self):

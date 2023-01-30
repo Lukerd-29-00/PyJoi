@@ -7,29 +7,10 @@ from ....RefSrc import Ref
 T = typing.TypeVar("T",int,typing.Optional[int])
 
 class IntSchema(typing.Generic[T],Numeric.Numeric[T]):
-    A = typing.TypeVar("A")
     def _check_multiple(self,value: int,base: int):
         if value % base == 0:
             return value
         raise IntExceptions.NonMultipleException(self._name,f"Encountered {value}, not divisible by {base}")
-
-    @typing.overload
-    def whitelist(self,*items: int)->"IntSchema":
-        pass
-    @typing.overload
-    def whitelist(self,items: typing.Iterable[int])->"IntSchema":
-        pass
-    def whitelist(self,*items: typing.Union[int,typing.Iterable[int]])->"IntSchema[T]":
-        return super(Numeric.Numeric,self).whitelist(items,primitive=int)
-
-    @typing.overload
-    def blacklist(self,*items: int)->"IntSchema[T]":
-        pass
-    @typing.overload
-    def blacklist(self,items: typing.Iterable[int])->"IntSchema[T]":
-        pass
-    def blacklist(self,*items: typing.Union[int,typing.Iterable[int]])->"IntSchema[T]":
-        return super(Numeric.Numeric,self).blacklist(items,primitive=int)
 
     def _validate(self, value: any)->T:
         if not isinstance(value,int) and value != None:
@@ -57,4 +38,10 @@ class IntSchema(typing.Generic[T],Numeric.Numeric[T]):
             pass
 
         def optional(self)->"IntSchema[typing.Optional[int]]":
+            pass
+
+        def whitelist(self, *items: int)->"IntSchema[T]":
+            pass
+
+        def blacklist(self, *items: int)->"IntSchema[T]":
             pass

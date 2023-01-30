@@ -6,7 +6,6 @@ from . import Exceptions
 
 T = typing.TypeVar("T",int,float,typing.Optional[int],typing.Optional[float])
 class Numeric(typing.Generic[T],PrimitiveSchema[T],abc.ABC):
-
     def _check_size(self, value: int, comparator: typing.Callable[[T],bool])->T:
         if comparator(value):
             return value
@@ -37,7 +36,3 @@ class Numeric(typing.Generic[T],PrimitiveSchema[T],abc.ABC):
         zero = 0
         self._checks.append(lambda value: self._check_size(value,zero.__gt__))
         return self
-
-    if typing.TYPE_CHECKING:
-        def optional(self)->"Numeric[typing.Optional[T]]":
-            pass

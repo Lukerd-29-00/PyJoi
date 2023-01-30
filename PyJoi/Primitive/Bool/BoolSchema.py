@@ -12,3 +12,9 @@ class BoolSchema(typing.Generic[T],Primitive.PrimitiveSchema[T]):
     if typing.TYPE_CHECKING:
         def optional(self)->"BoolSchema[typing.Optional[bool]]":
             pass
+
+        def whitelist(self, *items: bool)->"BoolSchema[T]":
+            pass
+        
+        def blacklist(self, *items: bool)->"BoolSchema[T]":
+            pass

@@ -14,24 +14,6 @@ PaddedUrlSafeB64Pattern = re.compile(r"^(?:[A-Za-z0-9\-_]{4})*(?:[A-Za-z0-9\-_]{
 UnPaddedUrlSafeB64Pattern = re.compile(r"^(?:[A-Za-z0-9\-_]{4})*(?:[A-Za-z0-9\-_]{2,3})?$")
 
 class StringSchema(typing.Generic[T],PrimitiveSchema[T]):
-    @typing.overload
-    def whitelist(self,*items: str)->"StringSchema[T]":
-        pass
-    @typing.overload
-    def whitelist(self,items: typing.Iterable[str])->"StringSchema[T]":
-        pass
-    def whitelist(self,*items: typing.Union[str,typing.Iterable[str]])->"StringSchema[T]":
-        return super(StringSchema,self).whitelist(items,primitive=str)
-
-    @typing.overload
-    def blacklist(self,*items: str)->"StringSchema[T]":
-        pass
-    @typing.overload
-    def blacklist(self,items: typing.Iterable[str])->"StringSchema[T]":
-        pass
-    def blacklist(self,*items: typing.Union[str,typing.Iterable[str]])->"StringSchema[T]":
-        return super(StringSchema,self).blacklist(items,primitive=str)
-
     def _matches(self,string: str, pattern: re.Pattern)->str:
         if re.match(pattern,string) != None:
             return string
@@ -85,6 +67,12 @@ class StringSchema(typing.Generic[T],PrimitiveSchema[T]):
         def optional(self)->"StringSchema[typing.Optional[str]]":
             pass
 
+        def whitelist(self,*items: str)->"StringSchema[T]":
+            pass
+
+        def blacklist(self,*items: str)->"StringSchema[T]":
+            pass
+
 B = typing.TypeVar("B",str,typing.Optional[str])
 
 class Base64Schema(typing.Generic[B],StringSchema[B]):
@@ -120,23 +108,10 @@ class Base64Schema(typing.Generic[B],StringSchema[B]):
         return value
 
     if typing.TYPE_CHECKING:
-
-        @typing.overload
         def whitelist(self,*items: str)->"Base64Schema[B]":
             pass
-        @typing.overload
-        def whitelist(self,items: typing.Iterable[str])->"Base64Schema[B]":
-            pass
-        def whitelist(self,*items: typing.Union[str,typing.Iterable[str]])->"Base64Schema[B]":
-            pass
 
-        @typing.overload
         def blacklist(self,*items: str)->"Base64Schema[B]":
-            pass
-        @typing.overload
-        def blacklist(self,items: typing.Iterable[str])->"Base64Schema[B]":
-            pass
-        def blacklist(self,*items: typing.Union[str,typing.Iterable[str]])->"Base64Schema[B]":
             pass
 
         def len(self,new_len: int)->"Base64Schema[B]":

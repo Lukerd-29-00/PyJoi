@@ -16,26 +16,14 @@ class PrimitiveSchema(typing.Generic[T],AbstractSchema.AbstractSchema[T],abc.ABC
         super(PrimitiveSchema,self).__init__(name)
         self._checks = []
 
-    def whitelist(self, items: typing.Union[T,typing.Iterable[T]],primitive: type)->"PrimitiveSchema[T]":
-        if not isinstance(items[0],primitive) and len(items) > 1:
-            raise ValueError("Cannot blacklist several iterables at once!")
-        elif not isinstance(items[0],primitive):
-            whitelist = set(items[0]) #this is faster if validation is done multiple times, since creating the set is o(n) but checking it is o(1).
-            self._checks.append(lambda value: self._check_whitelist(value,whitelist))
-        else:
-            whitelist = set(items)
-            self._checks.append(lambda value: self._check_whitelist(value,whitelist))
+    def whitelist(self, *items: T)->"PrimitiveSchema[T]":
+        whitelist = set(items)
+        self._checks.append(lambda value: self._check_whitelist(value,whitelist))
         return self
 
-    def blacklist(self, items: typing.Union[str,typing.Iterable[str]],primitive: type)->"PrimitiveSchema[T]":
-        if not isinstance(items[0],primitive) and len(items) > 1:
-            raise ValueError("Cannot blacklist several iterables at once!")
-        elif not isinstance(items[0],primitive):
-            blacklist = set(items[0]) #this is faster if validation is done multiple times, since creating the set is o(n) but checking it is o(1).
-            self._checks.append(lambda value: self._check_blacklist(value,blacklist))
-        else:
-            blacklist = set(items)
-            self._checks.append(lambda value: self._check_blacklist(value,blacklist))
+    def blacklist(self, *items: T)->"PrimitiveSchema[T]":
+        blacklist = set(items)
+        self._checks.append(lambda value: self._check_blacklist(value,blacklist))
         return self
 
     def _check_blacklist(self,value: T, blacklist: typing.Set[T])->str:

@@ -1,43 +1,34 @@
 import unittest
 import PyJoi
+from PyJoi.Primitive.Numeric.Int import IntSchema
 import typing
 from PyJoi.Primitive.Numeric import Exceptions as NumericExceptions
 from PyJoi.Primitive.Numeric.Int import Exceptions as IntExceptions
-from PyJoi.Primitive import Exceptions as PrimitiveExceptions
-from PyJoi import Exceptions as BaseExceptions
+from .. import Common
+from ... import util
 
-class TestIntSchema(unittest.TestCase):
+class TestIntSchema(Common.PrimitiveSchemaTest[int,int,IntSchema.IntSchema]):
+    instance1 = 1
+    instance2 = 2
+    output_instance = 1
+    noninstance = "1"
+    custom_fail = 6
+    custom_success = 4
 
-    def test_optional(self):
-        s = PyJoi.int()
-        with self.assertRaises(BaseExceptions.MissingElementException):
-            s.validate(None)
-        self.assertIsNone(s.optional().validate(None))
+    def schema_factory(self, name: typing.Optional[str] = None)->"IntSchema[int]":
+        return PyJoi.int(name)
 
-    def test_rejects_non_int(self):
-        with self.assertRaises(IntExceptions.NotAnIntException):
-            PyJoi.int().validate("1")
-    
-    def test_whitelist(self):
-        self.assertEqual(PyJoi.int().whitelist(1).validate(1),1)
-        self.assertEqual(PyJoi.int().whitelist([1,2]).validate(2),2)
-        self.assertEqual(PyJoi.int().whitelist([1,2]).validate(1),1)
-        with self.assertRaises(PrimitiveExceptions.NonWhiteListedValueException):
-            PyJoi.int().whitelist(1).validate(2)
-        with self.assertRaises(PrimitiveExceptions.NonWhiteListedValueException):
-            PyJoi.int().whitelist([1,2]).validate(3)
+    def _custom_check(self, name: str, x: int) -> int:
+        if x < 5:
+            return x
+        else:
+            raise util.TestException(name,f"{x} is not less than 5.")
 
-    def test_blacklist(self):
-        s = PyJoi.int().blacklist(1)
-        self.assertEqual(s.validate(2),2)
-        with self.assertRaises(PrimitiveExceptions.BlackListedValueException):
-            s.validate(1)
-        s = PyJoi.int("s").blacklist([1,2])
-        self.assertEqual(s.validate(3),3)
-        with self.assertRaises(PrimitiveExceptions.BlackListedValueException):
-            s.validate(1)
-        with self.assertRaises(PrimitiveExceptions.BlackListedValueException):
-            s.validate(2)
+    def _custom_check_ref(self, name: str, x: int, y: int) -> int:
+        if x < y:
+                return x
+        else:
+            raise util.TestException(name,f"{x} is not less than {y}.")
 
     def test_multiple(self):
         s = PyJoi.int().multiple(3)
@@ -120,26 +111,3 @@ class TestIntSchema(unittest.TestCase):
             s.validate(65536)
         with self.assertRaises(NumericExceptions.InvalidSizeException):
             s.validate(-1)
-    
-    def test_custom(self):
-        def lt_five(name: str, x: int)->int:
-            if x < 5:
-                return x
-            else:
-                raise NumericExceptions.InvalidSizeException(name,f"{x} is not less than 5.")
-        s = PyJoi.int().custom(lt_five)
-        self.assertEqual(s.validate(4),4)
-        with self.assertRaises(NumericExceptions.InvalidSizeException):
-            s.validate(5)
-        def less_than(name: str, x: int, y: int)->int:
-            if x < y:
-                return x
-            else:
-                raise NumericExceptions.InvalidSizeException(name,f"{x} is not less than {y}.")
-        s = PyJoi.Schema("s",
-            less=PyJoi.int().custom(less_than,PyJoi.Ref("more")),
-            more=PyJoi.int()
-        )
-        self.assertEqual(s.validate({"less": 3, "more": 5}).less,3)
-        with self.assertRaises(NumericExceptions.InvalidSizeException):
-            s.validate({"less": 5, "more": 5})

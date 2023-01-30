@@ -1,8 +1,5 @@
-import unittest
 import PyJoi
 from . import Common
-from PyJoi.Stream import Exceptions as StreamExceptions
-from .. import util
 import typing
 
 def schema_factory(self: "StreamSchemaTest", name: typing.Optional[str] = None):
