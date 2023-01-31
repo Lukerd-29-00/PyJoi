@@ -21,7 +21,7 @@ def iterable(name: typing.Optional[str] = None)->IterableSchema.IterableSchema[t
 def set(name: typing.Optional[str] = None)->SetSchema.SetSchema[typing.Set]:
     return SetSchema.SetSchema(name)
 
-def bool(name: typing.Optional[str] = None)->BoolSchema[bool]:
+def bool(name: typing.Optional[str] = None)->BoolSchema.BoolSchema[bool]:
     return BoolSchema.BoolSchema(name)
 
 def str(name: typing.Optional[str] = None)->StrSchema.StrSchema[str]:
