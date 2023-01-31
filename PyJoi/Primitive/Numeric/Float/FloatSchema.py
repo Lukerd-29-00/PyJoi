@@ -1,9 +1,9 @@
-from .. import Numeric
+from .. import NumericSchema
 import typing
 from .... import Ref
 
 T = typing.TypeVar("T",float,typing.Optional[float])
-class FloatSchema(typing.Generic[T],Numeric.Numeric[T]):
+class FloatSchema(typing.Generic[T],NumericSchema.NumericSchema[T]):
     @typing.overload
     def whitelist(self,*items: float)->"FloatSchema[T]":
         pass
@@ -11,7 +11,7 @@ class FloatSchema(typing.Generic[T],Numeric.Numeric[T]):
     def whitelist(self,items: typing.Iterable[float])->"FloatSchema[T]":
         pass
     def whitelist(self,*items: typing.Union[float,typing.Iterable[float]])->"FloatSchema[T]":
-        return super(Numeric.Numeric,self).whitelist(items,primitive=float)
+        return super(NumericSchema.NumericSchema,self).whitelist(items,primitive=float)
 
     @typing.overload
     def blacklist(self,*items: float)->"FloatSchema[T]":
@@ -20,7 +20,7 @@ class FloatSchema(typing.Generic[T],Numeric.Numeric[T]):
     def blacklist(self,items: typing.Iterable[float])->"FloatSchema[T]":
         pass
     def blacklist(self,*items: typing.Union[float,typing.Iterable[float]])->"FloatSchema[T]":
-        return super(Numeric.Numeric,self).blacklist(items,primitive=float)
+        return super(NumericSchema.NumericSchema,self).blacklist(items,primitive=float)
 
     if typing.TYPE_CHECKING:
         def max(self,new_max: typing.Union[float,Ref[float]])->"FloatSchema[T]":

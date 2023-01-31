@@ -1,12 +1,12 @@
 
 import typing
 from . import Exceptions as IntExceptions
-from .. import Numeric
+from .. import NumericSchema
 from ....RefSrc import Ref
 
 T = typing.TypeVar("T",int,typing.Optional[int])
 
-class IntSchema(typing.Generic[T],Numeric.Numeric[T]):
+class IntSchema(typing.Generic[T],NumericSchema.NumericSchema[T]):
     def _check_multiple(self,value: int,base: int):
         if value % base == 0:
             return value
@@ -15,7 +15,7 @@ class IntSchema(typing.Generic[T],Numeric.Numeric[T]):
     def _validate(self, value: any)->T:
         if not isinstance(value,int) and value != None:
             raise IntExceptions.NotAnIntException(self._name,f"{value} is not an integer!")
-        return super(Numeric.Numeric,self)._validate(value) 
+        return super(NumericSchema.NumericSchema,self)._validate(value) 
 
     def multiple(self, base: typing.Union[int,Ref[int]])->"IntSchema[T]":
         if isinstance(base,int):
