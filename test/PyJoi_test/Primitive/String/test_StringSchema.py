@@ -1,11 +1,11 @@
 import PyJoi
-from PyJoi.Primitive.String import Exceptions
-from PyJoi.Primitive.String import StringSchema
+from PyJoi.Primitive.Str import Exceptions
+from PyJoi.Primitive.Str import StrSchema
 from .. import Common
 import typing
 from ... import util
 
-class TestStringSchema(Common.PrimitiveSchemaTest[str,str,StringSchema]):
+class TestStringSchema(Common.PrimitiveSchemaTest[str,str,StrSchema.StrSchema]):
     instance1 = "hello"
     instance2 = "world"
     output_instance = "hello"
@@ -13,7 +13,7 @@ class TestStringSchema(Common.PrimitiveSchemaTest[str,str,StringSchema]):
     custom_fail = "hello"
     custom_success = "ab"
 
-    def schema_factory(self, name: typing.Optional[str] = None)->StringSchema[str]:
+    def schema_factory(self, name: typing.Optional[str] = None)->StrSchema.StrSchema[str]:
         return PyJoi.str()
 
     def _custom_check(self, name: str, x: str) -> str:

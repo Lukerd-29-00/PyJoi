@@ -13,7 +13,7 @@ UnpaddedB64Pattern = re.compile(r"^(?:[A-Za-z0-9\+/]{4})*(?:[A-Za-z0-9\+/]{2,3})
 PaddedUrlSafeB64Pattern = re.compile(r"^(?:[A-Za-z0-9\-_]{4})*(?:[A-Za-z0-9\-_]{2}[A-Za-z0-9\-_=]{2})?$")
 UnPaddedUrlSafeB64Pattern = re.compile(r"^(?:[A-Za-z0-9\-_]{4})*(?:[A-Za-z0-9\-_]{2,3})?$")
 
-class StringSchema(typing.Generic[T],PrimitiveSchema[T]):
+class StrSchema(typing.Generic[T],PrimitiveSchema[T]):
     def _matches(self,string: str, pattern: re.Pattern)->str:
         if re.match(pattern,string) != None:
             return string
@@ -24,12 +24,12 @@ class StringSchema(typing.Generic[T],PrimitiveSchema[T]):
             return string
         raise Exceptions.MatchesBlackistException(self._name,f"String {string} matches blacklisted pattern {pattern.pattern}")
 
-    def whitelist_pattern(self, pattern: str)->"StringSchema[T]":
+    def whitelist_pattern(self, pattern: str)->"StrSchema[T]":
         whitelist_regex = re.compile(pattern)
         self._checks.append(lambda value: self._matches(value,whitelist_regex))
         return self
 
-    def blacklist_pattern(self, pattern: str)->"StringSchema[T]":
+    def blacklist_pattern(self, pattern: str)->"StrSchema[T]":
         blacklist_regex = re.compile(pattern)
         self._checks.append(lambda value: self._not_matches(value,blacklist_regex))
         return self
@@ -39,19 +39,19 @@ class StringSchema(typing.Generic[T],PrimitiveSchema[T]):
             return string
         raise Exceptions.NonMatchingLengthException(self._name,f"String {string} has an incorrect length of {len(string)}")
 
-    def len(self,new_len: int)->"StringSchema[T]":
+    def len(self,new_len: int)->"StrSchema[T]":
         self._checks.append(lambda value: self._check_len(value,new_len.__eq__))
         return self
     
-    def min_len(self,new_min: int)->"StringSchema[T]":
+    def min_len(self,new_min: int)->"StrSchema[T]":
         self._checks.append(lambda value: self._check_len(value,new_min.__le__))
         return self
 
-    def max_len(self, new_max: int)->"StringSchema[T]":
+    def max_len(self, new_max: int)->"StrSchema[T]":
         self._checks.append(lambda value: self._check_len(value,new_max.__ge__))
         return self
 
-    def hex(self)->"StringSchema[T]":
+    def hex(self)->"StrSchema[T]":
         self._checks.append(lambda value: self._matches(value,HexPattern))
         return self
 
@@ -61,21 +61,21 @@ class StringSchema(typing.Generic[T],PrimitiveSchema[T]):
     def _validate(self,value: any)->T:
         if not isinstance(value,str) and value != None:
             raise Exceptions.NotAStringException(self._name,f"expected a string, got {value}")
-        return super(StringSchema,self)._validate(value)
+        return super(StrSchema,self)._validate(value)
 
     if typing.TYPE_CHECKING:
-        def optional(self)->"StringSchema[typing.Optional[str]]":
+        def optional(self)->"StrSchema[typing.Optional[str]]":
             pass
 
-        def whitelist(self,*items: str)->"StringSchema[T]":
+        def whitelist(self,*items: str)->"StrSchema[T]":
             pass
 
-        def blacklist(self,*items: str)->"StringSchema[T]":
+        def blacklist(self,*items: str)->"StrSchema[T]":
             pass
 
 B = typing.TypeVar("B",str,typing.Optional[str])
 
-class Base64Schema(typing.Generic[B],StringSchema[B]):
+class Base64Schema(typing.Generic[B],StrSchema[B]):
     __padded: bool = True
     __urlsafe: bool = False
 

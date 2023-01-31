@@ -1,6 +1,6 @@
 from .SchemaSrc import Schema
 from .RefSrc import Ref
-from .Primitive.String.StringSchema import StringSchema
+from .Primitive.Str import StrSchema
 from .Primitive.Numeric.Int.IntSchema import IntSchema
 from .Iterable.List.ListSchema import ListSchema
 from .Iterable.IterableSchema import IterableSchema
@@ -9,9 +9,9 @@ from .Primitive.Numeric.Int.IntSchema import IntSchema
 from .Primitive.Bool import BoolSchema
 import typing
 
-def str(name: typing.Optional[str] = None)->StringSchema[str]:
+def str(name: typing.Optional[str] = None)->StrSchema.StrSchema[str]:
     """Create a string schema."""
-    return StringSchema(name)
+    return StrSchema.StrSchema(name)
 
 def int(name: typing.Optional[str] = None)->IntSchema[int]:
     """Create an int schema."""
