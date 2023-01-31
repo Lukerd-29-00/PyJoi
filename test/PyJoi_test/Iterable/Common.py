@@ -1,6 +1,6 @@
 import unittest
 import PyJoi
-from PyJoi.Iterable import Exceptions as StreamExceptions
+from PyJoi.Iterable import Exceptions as IterableExceptions
 from .. import util
 from PyJoi.Iterable import IterableSchema
 import typing
@@ -29,7 +29,7 @@ class IterableSchemaTest(unittest.TestCase,abc.ABC):
         Schema = self.schema_factory().has(util.SchemaMock(validate=is_int))
         s = Schema.validate([1,"2"])
         self.assertion(self.instance_factory(s),self.instance_factory([1,"2"]))
-        with self.assertRaises(StreamExceptions.RequiredItemNotFound):
+        with self.assertRaises(IterableExceptions.RequiredItemNotFound):
             self.instance_factory(Schema.validate(["2","3","4"]))
 
     def test_matches(self):

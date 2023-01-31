@@ -1,6 +1,6 @@
 from .. import AbstractSchema, Exceptions
 import typing
-from . import Exceptions as StreamExceptions
+from . import Exceptions as IterableExceptions
 import itertools
 from .. import SchemaSrc as Schema
 
@@ -23,7 +23,7 @@ class IterableSchema(typing.Generic[T],AbstractSchema.AbstractSchema[T]):
         elif iterable == None:
             return
         elif not isinstance(iterable,typing.Iterable):
-            raise StreamExceptions.NotIterableException(self._name,"expected an iterable")
+            raise IterableExceptions.NotIterableException(self._name,"expected an iterable")
         hasFound = [False for _ in self._has]
         for item in iterable:
             subitem = item
@@ -45,7 +45,7 @@ class IterableSchema(typing.Generic[T],AbstractSchema.AbstractSchema[T]):
                 yield subitem
         for found in hasFound:
             if not found:
-                raise StreamExceptions.RequiredItemNotFound(self._name,f"No match for a required schema was found.")
+                raise IterableExceptions.RequiredItemNotFound(self._name,f"No match for a required schema was found.")
         return
 
     def matches(self, schema: AbstractSchema.AbstractSchema[A])->"IterableSchema[typing.Iterable[A]]":
