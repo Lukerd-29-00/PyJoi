@@ -1,4 +1,3 @@
-import unittest
 import PyJoi
 from PyJoi.Primitive.Numeric.Int import IntSchema
 import typing

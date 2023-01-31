@@ -1,11 +1,10 @@
 import PyJoi
 from PyJoi.Primitive.Bool import BoolSchema
-from PyJoi.Primitive.Bool import Exceptions
 from .. import Common
 import typing
 from ... import util
 
-class TestBoolSchema(Common.PrimitiveSchemaTest[bool,bool,BoolSchema]):
+class TestBoolSchema(Common.PrimitiveSchemaTest[bool,bool,BoolSchema.BoolSchema]):
     instance1 = True
     instance2 = False
     output_instance = True
@@ -13,7 +12,7 @@ class TestBoolSchema(Common.PrimitiveSchemaTest[bool,bool,BoolSchema]):
     custom_fail = False
     custom_success = True
 
-    def schema_factory(self, name: typing.Optional[str] = None) -> BoolSchema[bool]:
+    def schema_factory(self, name: typing.Optional[str] = None) -> BoolSchema.BoolSchema[bool]:
         return PyJoi.bool()
     
     def _custom_check(self, name: str, x: bool)->bool:

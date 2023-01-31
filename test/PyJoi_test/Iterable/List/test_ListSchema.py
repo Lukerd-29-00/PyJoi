@@ -1,6 +1,4 @@
-import unittest
 import PyJoi
-from PyJoi.Iterable import Exceptions as StreamExceptions
 from .. import Common
 import typing
 

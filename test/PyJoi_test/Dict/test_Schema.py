@@ -2,7 +2,6 @@ import unittest
 from unittest import mock
 import PyJoi
 from PyJoi import Exceptions
-from PyJoi.Primitive.Numeric.Int import Exceptions as IntExceptions
 import typing
 from .. import util
 
