@@ -1,8 +1,7 @@
-import unittest
 import PyJoi
 from .. import Common
 import typing
-from PyJoi.Stream.Set import Exceptions as SetExceptions
+from PyJoi.Iterable.Set import Exceptions as SetExceptions
 
 def set_schema_factory(self: "SetSchemaTest", name: typing.Optional[str] = None):
     return PyJoi.set(name=name)
@@ -10,7 +9,7 @@ def set_schema_factory(self: "SetSchemaTest", name: typing.Optional[str] = None)
 def set_factory(self: "SetSchemaTest", iter: typing.Iterable)->typing.Set:
     return set(iter)
 
-class SetSchemaTest(Common.StreamSchemaTest):
+class SetSchemaTest(Common.IterableSchemaTest):
     @classmethod
     def setUpClass(cls):
         cls.schema_factory = set_schema_factory

@@ -1,13 +1,13 @@
 import unittest
 import PyJoi
-from PyJoi.Stream import Exceptions as StreamExceptions
+from PyJoi.Iterable import Exceptions as StreamExceptions
 from .. import util
-from PyJoi.Stream import StreamSchema
+from PyJoi.Iterable import IterableSchema
 import typing
 import abc
 
 class SchemaFactory(typing.Protocol):
-    def __call__(self, name: typing.Optional[str] = None)->StreamSchema.StreamSchema:
+    def __call__(self, name: typing.Optional[str] = None)->IterableSchema.IterableSchema:
         pass
 
 def is_int(value: any):
@@ -16,7 +16,7 @@ def is_int(value: any):
     else:
         raise util.TestException(None, "not an int")
 
-class StreamSchemaTest(unittest.TestCase,abc.ABC):
+class IterableSchemaTest(unittest.TestCase,abc.ABC):
     schema_factory: SchemaFactory
     instance_factory: typing.Callable[[typing.Iterable],typing.Iterable]
     assertion: typing.Callable[[typing.Iterable],None]

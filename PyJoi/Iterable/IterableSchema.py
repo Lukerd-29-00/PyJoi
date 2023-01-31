@@ -6,14 +6,14 @@ from .. import SchemaSrc as Schema
 
 T = typing.TypeVar("T",bound=typing.Union[typing.Iterable,typing.Optional[typing.Iterable]])
 A = typing.TypeVar("A")
-class StreamSchema(typing.Generic[T],AbstractSchema.AbstractSchema[T]):
-    """This is a schema designed to match any iterable object. Unlike other schemas, this will not return None if the iterable is empty or missing; the output will simply be an empty iterable. Note that a Ref to a StreamSchema instance is undefined behavior."""
+class IterableSchema(typing.Generic[T],AbstractSchema.AbstractSchema[T]):
+    """This is a schema designed to match any iterable object. Unlike other schemas, this will not return None if the iterable is empty or missing; the output will simply be an empty iterable. Note that a Ref to a IterableSchema instance is undefined behavior."""
     _has: typing.List[AbstractSchema.AbstractSchema]
     _matches: typing.Optional[AbstractSchema.AbstractSchema] = None
 
     def __init__(self,name: typing.Optional[str] = None):
-        """Initialize a StreamSchema."""
-        super(StreamSchema,self).__init__(name)
+        """Initialize a IterableSchema."""
+        super(IterableSchema,self).__init__(name)
         self._has = []
     
     def _validate(self,iterable: any)->T:
@@ -48,7 +48,7 @@ class StreamSchema(typing.Generic[T],AbstractSchema.AbstractSchema[T]):
                 raise StreamExceptions.RequiredItemNotFound(self._name,f"No match for a required schema was found.")
         return
 
-    def matches(self, schema: AbstractSchema.AbstractSchema[A])->"StreamSchema[typing.Iterable[A]]":
+    def matches(self, schema: AbstractSchema.AbstractSchema[A])->"IterableSchema[typing.Iterable[A]]":
         """Assert that the stream passed to validate must match the provided schema. Transformations supplied by .custom will be applied."""
         self._matches = schema
         schema._parent = self
@@ -58,11 +58,11 @@ class StreamSchema(typing.Generic[T],AbstractSchema.AbstractSchema[T]):
             self._depends_on.update(schema._depends_on)
         return self
     
-    def has(self, *schemas: AbstractSchema.AbstractSchema)->"StreamSchema[T]":
+    def has(self, *schemas: AbstractSchema.AbstractSchema)->"IterableSchema[T]":
         """Assert that the stream contains at least one element matching the provided schema(s). Note that the error for this is thown only after iteration is complete."""
         self._has.extend(schemas)
         return self
 
     if typing.TYPE_CHECKING:
-        def optional(self)->"StreamSchema[typing.Optional[T]]":
+        def optional(self)->"IterableSchema[typing.Optional[T]]":
             pass

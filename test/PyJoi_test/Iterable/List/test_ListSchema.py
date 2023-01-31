@@ -1,6 +1,6 @@
 import unittest
 import PyJoi
-from PyJoi.Stream import Exceptions as StreamExceptions
+from PyJoi.Iterable import Exceptions as StreamExceptions
 from .. import Common
 import typing
 
@@ -10,7 +10,7 @@ def list_schema_factory(self: "ListSchemaTest", name: typing.Optional[str] = Non
 def list_factory(self: "ListSchemaTest", iter: typing.Iterable)->typing.List:
     return list(iter)
 
-class ListSchemaTest(Common.StreamSchemaTest):
+class ListSchemaTest(Common.IterableSchemaTest):
     @classmethod
     def setUpClass(cls):
         cls.schema_factory = list_schema_factory

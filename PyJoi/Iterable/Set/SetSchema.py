@@ -1,12 +1,12 @@
 """"""
-from .. import StreamSchema
+from .. import IterableSchema
 from ... import AbstractSchema
 import typing
 from . import Exceptions
 
 T = typing.TypeVar("T",bound=typing.Union[typing.Set,typing.Optional[typing.Set]])
 A = typing.TypeVar("A")
-class SetSchema(typing.Generic[T],StreamSchema.StreamSchema[T]):
+class SetSchema(typing.Generic[T],IterableSchema.IterableSchema[T]):
     _enforced: bool = False
     
     def _validate(self,iterable: any)->T:

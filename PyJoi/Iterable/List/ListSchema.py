@@ -1,11 +1,11 @@
 """"""
-from .. import StreamSchema
+from .. import IterableSchema
 from ... import AbstractSchema
 import typing
 
 T = typing.TypeVar("T",bound=typing.Union[typing.List,typing.Optional[typing.List]])
 A = typing.TypeVar("A")
-class ListSchema(typing.Generic[T],StreamSchema.StreamSchema[T]):
+class ListSchema(typing.Generic[T],IterableSchema.IterableSchema[T]):
     def _validate(self,iterable: any)->T:
         return list(super(ListSchema,self)._validate(iterable))
 

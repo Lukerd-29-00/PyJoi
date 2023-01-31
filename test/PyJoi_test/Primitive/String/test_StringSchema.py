@@ -14,7 +14,7 @@ class TestStringSchema(Common.PrimitiveSchemaTest[str,str,StringSchema]):
     custom_success = "ab"
 
     def schema_factory(self, name: typing.Optional[str] = None)->StringSchema[str]:
-        return PyJoi.string()
+        return PyJoi.str()
 
     def _custom_check(self, name: str, x: str) -> str:
         if len(x) < 3:
@@ -29,15 +29,15 @@ class TestStringSchema(Common.PrimitiveSchemaTest[str,str,StringSchema]):
             raise util.TestException(name,f"{x} is at least {len(y)} characters.")
 
     def test_length_bounds(self):
-        s = PyJoi.string().max_len(3)
+        s = PyJoi.str().max_len(3)
         self.assertEqual(s.validate("hi"),"hi")
         with self.assertRaises(Exceptions.NonMatchingLengthException):
             s.validate("hello")
-        s = PyJoi.string().min_len(3)
+        s = PyJoi.str().min_len(3)
         self.assertEqual(s.validate("hello"),"hello")
         with self.assertRaises(Exceptions.NonMatchingLengthException):
             s.validate("hi")
-        s = PyJoi.string().len(3)
+        s = PyJoi.str().len(3)
         self.assertEqual(s.validate("cal"),"cal")
         with self.assertRaises(Exceptions.NonMatchingLengthException):
             s.validate("hi")
@@ -45,25 +45,25 @@ class TestStringSchema(Common.PrimitiveSchemaTest[str,str,StringSchema]):
             s.validate("hello")
 
     def test_hex(self):
-        s = PyJoi.string().hex()
+        s = PyJoi.str().hex()
         self.assertEqual(s.validate(b'\x00\xef'.hex()),b'\x00\xef'.hex())
         with self.assertRaises(Exceptions.NoWhiteListException):
             s.validate('hi')
     
     def test_whitelist_regex(self):
-        s = PyJoi.string().whitelist_pattern(r"a.")
+        s = PyJoi.str().whitelist_pattern(r"a.")
         self.assertEqual(s.validate("ax"),"ax")
         with self.assertRaises(Exceptions.NoWhiteListException):
             s.validate("bx")
     
     def test_blacklist_regex(self):
-        s = PyJoi.string().blacklist_pattern(r"a.")
+        s = PyJoi.str().blacklist_pattern(r"a.")
         self.assertEqual(s.validate("by"),"by")
         with self.assertRaises(Exceptions.MatchesBlackistException):
             s.validate("ax")
 
     def test_padded_base64(self):        
-        s = PyJoi.string().base64()
+        s = PyJoi.str().base64()
         self.assertEqual(s.validate("AB/+"),"AB/+")
         self.assertEqual(s.validate("ABCDaA=="),"ABCDaA==")
         self.assertEqual(s.validate("ABCDaXQ="),"ABCDaXQ=")
@@ -84,7 +84,7 @@ class TestStringSchema(Common.PrimitiveSchemaTest[str,str,StringSchema]):
             s.validate("/B-_") #Check that / is not allowed.
         
     def test_unpadded_base64(self):
-        s = PyJoi.string().base64().unpadded()
+        s = PyJoi.str().base64().unpadded()
         self.assertEqual(s.validate("AB/+"),"AB/+")
         self.assertEqual(s.validate("ABCDaA"),"ABCDaA")
         self.assertEqual(s.validate("ABCDaXQ"),"ABCDaXQ")
