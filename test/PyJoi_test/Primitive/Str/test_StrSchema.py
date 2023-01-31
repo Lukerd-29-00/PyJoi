@@ -5,7 +5,7 @@ from .. import Common
 import typing
 from ... import util
 
-class TestStringSchema(Common.PrimitiveSchemaTest[str,str,StrSchema.StrSchema]):
+class TestStrSchema(Common.PrimitiveSchemaTest[str,str,StrSchema.StrSchema]):
     instance1 = "hello"
     instance2 = "world"
     output_instance = "hello"
