@@ -1,26 +1,30 @@
 from .. import NumericSchema
 import typing
 from .... import Ref
+from . import Exceptions as FloatExceptions
 
 T = typing.TypeVar("T",float,typing.Optional[float])
 class FloatSchema(typing.Generic[T],NumericSchema.NumericSchema[T]):
-    @typing.overload
-    def whitelist(self,*items: float)->"FloatSchema[T]":
-        pass
-    @typing.overload
-    def whitelist(self,items: typing.Iterable[float])->"FloatSchema[T]":
-        pass
-    def whitelist(self,*items: typing.Union[float,typing.Iterable[float]])->"FloatSchema[T]":
-        return super(NumericSchema.NumericSchema,self).whitelist(items,primitive=float)
+    def _validate(self, value: any)->T:
+        if not isinstance(value,int) and value != None and not isinstance(value,float):
+            raise FloatExceptions.NotAFloatException(self._name,f"{value} is not an integer!")
+        return super(NumericSchema.NumericSchema,self)._validate(value) 
 
-    @typing.overload
-    def blacklist(self,*items: float)->"FloatSchema[T]":
-        pass
-    @typing.overload
-    def blacklist(self,items: typing.Iterable[float])->"FloatSchema[T]":
-        pass
-    def blacklist(self,*items: typing.Union[float,typing.Iterable[float]])->"FloatSchema[T]":
-        return super(NumericSchema.NumericSchema,self).blacklist(items,primitive=float)
+    def __check_precision(self, value: float, precision: int):
+        if value == round(value,precision):
+            return value
+        else:
+            raise FloatExceptions.InvalidPrecisionException(self._name,f"{value} has more than {precision} decimal digits.")
+
+    def precision(self, precision: typing.Union[int,Ref[int]])->"FloatSchema[T]":
+        if isinstance(precision,int):
+            if precision <= 0:
+                raise ValueError("Precision must be a positive integer!")
+            self._checks.append(lambda f: self.__check_precision(f,precision))
+        else:
+            self._add_ref(precision)
+            self._checks.append(lambda f: self.__check_precision(f,precision.value))
+        return self
 
     if typing.TYPE_CHECKING:
         def max(self,new_max: typing.Union[float,Ref[float]])->"FloatSchema[T]":
@@ -30,4 +34,10 @@ class FloatSchema(typing.Generic[T],NumericSchema.NumericSchema[T]):
             pass
     
         def optional(self)->"FloatSchema[typing.Optional[float]]":
+            pass
+
+        def whitelist(self,*items: typing.Union[float,typing.Iterable[float]])->"FloatSchema[T]":
+            pass
+
+        def blacklist(self,*items: typing.Union[float,typing.Iterable[float]])->"FloatSchema[T]":
             pass

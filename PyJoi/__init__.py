@@ -2,6 +2,7 @@ from .SchemaSrc import Schema
 from .RefSrc import Ref
 from .Primitive.Str import StrSchema
 from .Primitive.Numeric.Int import IntSchema
+from .Primitive.Numeric.Float import FloatSchema
 from .Iterable.List import ListSchema
 from .Iterable import IterableSchema
 from .Iterable.Set import SetSchema
@@ -11,6 +12,9 @@ import typing
 def int(name: typing.Optional[str] = None)->IntSchema.IntSchema[int]:
     """Create an int schema."""
     return IntSchema.IntSchema(name)
+
+def float(name: typing.Optional[str] = None)->FloatSchema.FloatSchema[float]:
+    return FloatSchema.FloatSchema(name)
 
 def list(name: typing.Optional[str] = None)->ListSchema.ListSchema[typing.List]:
     return ListSchema.ListSchema(name)
