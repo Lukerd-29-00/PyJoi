@@ -25,10 +25,10 @@ class TestSchema(unittest.TestCase):
     def test_unknown_keys(self):
         self.assertIsNone(PyJoi.Schema("schema",
             a=PyJoi.int().optional()
-        ).optional().validate({"b": 12}).a)
+        ).validate({"b": 12})["a"])
         class TestTuple(typing.NamedTuple):
             a: int
-        self.assertEqual(PyJoi.Schema[TestTuple]("schema",a=PyJoi.int()).validate({"a": 2,"b": 12}).a,2)
+        self.assertEqual(PyJoi.Schema[TestTuple]("schema",TestTuple,a=PyJoi.int()).validate({"a": 2,"b": 12}).a,2)
     
     def test_error_name_prepend(self):
         sm = util.SchemaMock()
@@ -38,10 +38,6 @@ class TestSchema(unittest.TestCase):
                 value=sm
             ).validate({"value": "value"})
         self.assertEqual(cm.exception.name,"schema.value")
-
-    def test_needs_name(self):
-        with self.assertRaises(ValueError):
-            PyJoi.Schema(a=util.SchemaMock()).validate({"a": 1})
 
     def test_empty_schema_fails(self):
         with self.assertRaises(ValueError):

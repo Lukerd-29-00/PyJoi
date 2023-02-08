@@ -30,11 +30,11 @@ class TestRef(unittest.TestCase):
                 "value2": -4
             }
         )
-        self.assertEqual(item.obj.value,-3)
-        self.assertEqual(item.obj.obj.value,-5)
-        self.assertEqual(item.value,3)
-        self.assertEqual(item.value2,-4)
-        self.assertEqual(item.obj.obj.value2,-4)
+        self.assertEqual(item["obj"]["value"],-3)
+        self.assertEqual(item["obj"]["obj"]["value"],-5)
+        self.assertEqual(item["value"],3)
+        self.assertEqual(item["value2"],-4)
+        self.assertEqual(item["obj"]["obj"]["value2"],-4)
 
         with self.assertRaises(IntExceptions.InvalidSizeException):
             schema.validate(
@@ -98,19 +98,19 @@ class TestRef(unittest.TestCase):
         item = schema.validate({
             "min": 1,
             "max_obj": {
-                "value": 1
+                "value": 3
             },
             "container": {
-                "value": 1,
+                "value": 2,
                 "subContainer": {
-                    "value": 1
+                    "value": 2
                 }
             }
         })
-        self.assertEqual(item.min,1)
-        self.assertEqual(item.max_obj.value,1)
-        self.assertEqual(item.container.value,1)
-        self.assertEqual(item.container.subContainer.value,1)
+        self.assertEqual(item["min"],1)
+        self.assertEqual(item["max_obj"]["value"],3)
+        self.assertEqual(item["container"]["value"],2)
+        self.assertEqual(item["container"]["subContainer"]["value"],2)
 
         with self.assertRaises(IntExceptions.InvalidSizeException):
             schema.validate({

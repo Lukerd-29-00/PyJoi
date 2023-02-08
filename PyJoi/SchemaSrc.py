@@ -3,12 +3,12 @@ from . import Exceptions
 from .AbstractSchema import AbstractSchema
 import collections
 from collections import abc
-
+import collections
 def value_from_path(path: typing.List[str], data: typing.Dict[str,any]):
         item = data
         for i in range(len(path)):
             item = item[path[i]]
-            if i != len(path)-1:
+            if i != len(path)-1 and not isinstance(item,dict):
                 item = dict(item._asdict())
         return item
 
@@ -69,14 +69,21 @@ class OrderedSet(typing.Generic[S]):
     def __iter__(self)->typing.Iterator[S]:
         return iter(self._list)
 
+N = typing.TypeVar("N")
+class OutputType(typing.Generic[N],typing.Protocol):
+    def __call__(self, **kwargs)->N:
+        pass
+
+
 T = typing.TypeVar("T")
 class Schema(typing.Generic[T],AbstractSchema[T]):
     _fields: typing.Dict[str,"AbstractSchema"] = None
     _name: str
     _required: bool = True
     _values: typing.Dict[str,any]
+    _output_type: typing.Optional[OutputType[T]]
 
-    def __init__(self, name: typing.Optional[str] = None, **kwargs: "AbstractSchema"):
+    def __init__(self, name: typing.Optional[str] = None, output_type: typing.Optional[OutputType[T]] = None,  **kwargs: "AbstractSchema"):
         """Create a PyJoi Schema.
         
         Args:
@@ -84,12 +91,13 @@ class Schema(typing.Generic[T],AbstractSchema[T]):
             required: Whether or not this schema is required for the enclosing object to be valid. Can be set to False with .optional().
         """
         super(Schema,self).__init__(name)
-        if kwargs:
-            self._fields = dict(kwargs)
-            for k in self._fields.keys():
-                self._fields[k]._name = k
-                self._fields[k]._parent = self
-                self._fields[k]._add_parent_refs()
+        self._fields = dict(kwargs)
+        self._output_type = output_type
+
+        for k in self._fields.keys():
+            self._fields[k]._name = k
+            self._fields[k]._parent = self
+            self._fields[k]._add_parent_refs()
 
     def _validate(self,object: typing.Optional[typing.Dict[str,any]])->T:
         """Validate an object (Python dictionary from strings to anything that can be represented by another Schema).
@@ -102,15 +110,12 @@ class Schema(typing.Generic[T],AbstractSchema[T]):
         """
         if not self._fields:
             raise ValueError("Error: empty Schema encountered!") #TODO: Make these assertions so they can be optimized out for production.
-        elif self._name == None:
-            raise ValueError("Error: Schema has no name!")
         elif object == None and not self._required:
             return None
         elif object == None:
             raise Exceptions.MissingObjectException(self._name,"missing required object")
         elif not isinstance(object,typing.Dict):
             raise Exceptions.NotAnObjectException(self._name,"expected to be associated with a dictionary but encountered something else.")
-        nt = collections.namedtuple(self._name,self._fields.keys())
         Keys = OrderedSet[str]()
         for key in self._fields.keys():
             for ref in self._fields[key]._depends_on.keys():
@@ -129,7 +134,9 @@ class Schema(typing.Generic[T],AbstractSchema[T]):
                 data[key] = self._fields[key].validate(None if not key in object.keys() else object[key])
         except Exceptions.ValidationException as V:
             raise type(V)(f"{self._name}.{V.name}",V.vmessage)
-        return nt(**data)
+        if self._output_type == None:
+            return data
+        return self._output_type(**data)
 
     if typing.TYPE_CHECKING:
         def optional(self)->"Schema[typing.Optional[T]]":
