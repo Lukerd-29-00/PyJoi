@@ -58,8 +58,8 @@ class IterableSchemaTest(unittest.TestCase,abc.ABC):
             max=mx
         )
         s = Schema.validate({"max": 12, "lst": [11, 12, 10, 9]})
-        self.assertEqual(s.max,12)
-        self.assertion(self.instance_factory(s.lst),self.instance_factory([11,12,10,9]))
+        self.assertEqual(s["max"],12)
+        self.assertion(self.instance_factory(s["lst"]),self.instance_factory([11,12,10,9]))
         mx.validate.return_value = -1
         with self.assertRaises(util.TestException):
-            next(Schema.validate({"max": -1, "lst": [11, 12, 10, 9]}).lst)
+            next(Schema.validate({"max": -1, "lst": [11, 12, 10, 9]})["lst"])
