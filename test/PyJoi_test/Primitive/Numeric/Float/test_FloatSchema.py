@@ -54,6 +54,6 @@ class TestFloatSchema(Common.TestNumericSchema[float,FloatSchema.FloatSchema]):
             value=PyJoi.float().precision(PyJoi.Ref[int]("precision"))
         )
         v = s.validate({"precision": 2, "value": 2.22})
-        self.assertEqual(v.value,2.22)
+        self.assertEqual(v["value"],2.22)
         with self.assertRaises(FloatExceptions.InvalidPrecisionException):
             s.validate({"precision": 2, "value": 2.222})

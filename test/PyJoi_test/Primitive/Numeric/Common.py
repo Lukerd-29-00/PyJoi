@@ -33,7 +33,8 @@ class TestNumericSchema(typing.Generic[O,S],Common.PrimitiveSchemaTest[typing.Un
         class TestTuple(typing.NamedTuple):
             value: int
             value2: int
-        s = PyJoi.Schema[TestTuple]("s",
+        s = PyJoi.Schema[TestTuple]("s", 
+            TestTuple,
             value=PyJoi.int().max(PyJoi.Ref("value2")),
             value2=PyJoi.int()
         )
@@ -52,6 +53,7 @@ class TestNumericSchema(typing.Generic[O,S],Common.PrimitiveSchemaTest[typing.Un
             value: int
             value2: int
         s = PyJoi.Schema[TestTuple]("s",
+            TestTuple,
             value=self.schema_factory().min(PyJoi.Ref("value2")),
             value2=self.schema_factory()
         )

@@ -44,6 +44,7 @@ class TestIntSchema(Common.TestNumericSchema[int,IntSchema.IntSchema]):
             value: int
             base: int
         s = PyJoi.Schema[TestTuple]("s",
+            TestTuple,
             value=PyJoi.int().multiple(PyJoi.Ref("base")),
             base=PyJoi.int()
         )

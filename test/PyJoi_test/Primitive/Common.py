@@ -79,6 +79,6 @@ class PrimitiveSchemaTest(typing.Generic[I,O,S],unittest.TestCase,abc.ABC):
             x=self.schema_factory().custom(self._custom_check_ref,PyJoi.Ref[I]("y")),
             y=self.schema_factory()
         )
-        self.assertEqual(s.validate({"x": self.custom_success, "y": self.custom_fail}).x,self.custom_success)
+        self.assertEqual(s.validate({"x": self.custom_success, "y": self.custom_fail})["x"],self.custom_success)
         with self.assertRaises(util.TestException):
             s.validate({"x": self.custom_fail, "y": self.custom_success})
