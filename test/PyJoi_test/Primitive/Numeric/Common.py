@@ -24,8 +24,8 @@ class TestNumericSchema(typing.Generic[O,S],Common.PrimitiveSchemaTest[typing.Un
         else:
             raise util.TestException(name,f"{x} is not less than {y}.")
 
-    def test_max(self):
-        s = self.schema_factory().max(3)
+    def test_less_than(self):
+        s = self.schema_factory().less_than(3)
         self.assertEqual(s.validate(2),2)
         self.assertEqual(s.validate(-1),-1)
         with self.assertRaises(NumericExceptions.InvalidSizeException):
@@ -35,7 +35,7 @@ class TestNumericSchema(typing.Generic[O,S],Common.PrimitiveSchemaTest[typing.Un
             value2: int
         s = PyJoi.Schema[TestTuple]("s", 
             TestTuple,
-            value=PyJoi.int().max(PyJoi.Ref("value2")),
+            value=PyJoi.int().less_than(PyJoi.Ref("value2")),
             value2=PyJoi.int()
         )
         tup = s.validate({"value": 0, "value2": 1})
@@ -44,8 +44,8 @@ class TestNumericSchema(typing.Generic[O,S],Common.PrimitiveSchemaTest[typing.Un
         with self.assertRaises(NumericExceptions.InvalidSizeException):
             s.validate({"value": 3, "value2": 2})
     
-    def test_min(self):
-        s = self.schema_factory().min(3)
+    def test_greater_than(self):
+        s = self.schema_factory().greater_than(3)
         self.assertEqual(s.validate(4),4)
         with self.assertRaises(NumericExceptions.InvalidSizeException):
             s.validate(2)
@@ -54,7 +54,7 @@ class TestNumericSchema(typing.Generic[O,S],Common.PrimitiveSchemaTest[typing.Un
             value2: int
         s = PyJoi.Schema[TestTuple]("s",
             TestTuple,
-            value=self.schema_factory().min(PyJoi.Ref("value2")),
+            value=self.schema_factory().greater_than(PyJoi.Ref("value2")),
             value2=self.schema_factory()
         )
         tup = s.validate({"value": 3, "value2": 2})

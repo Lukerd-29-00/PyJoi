@@ -18,7 +18,7 @@ class NumericSchema(typing.Generic[T],PrimitiveSchema[T],abc.ABC):
         else:
             raise Exceptions.InvalidSizeException(self._name,f"{value} <= {constant}")
 
-    def max(self, new_max: typing.Union[float,Ref[float],int,Ref[int]])->"NumericSchema[T]":
+    def less_than(self, new_max: typing.Union[float,Ref[float],int,Ref[int]])->"NumericSchema[T]":
         if isinstance(new_max,int) or isinstance(new_max,float):
             self._checks.append(lambda value: self._check_lower(value,new_max))
         else:
@@ -26,7 +26,7 @@ class NumericSchema(typing.Generic[T],PrimitiveSchema[T],abc.ABC):
             self._checks.append(lambda value: self._check_lower(value,new_max.value))
         return self
 
-    def min(self, new_min: typing.Union[float,Ref[float],int,Ref[int]])->"NumericSchema[T]":
+    def greater_than(self, new_min: typing.Union[float,Ref[float],int,Ref[int]])->"NumericSchema[T]":
         if isinstance(new_min,int) or isinstance(new_min,float):
             self._checks.append(lambda value: self._check_greater(value, new_min))
         else:

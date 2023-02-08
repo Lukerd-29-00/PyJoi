@@ -27,10 +27,10 @@ class FloatSchema(typing.Generic[T],NumericSchema.NumericSchema[T]):
         return self
 
     if typing.TYPE_CHECKING:
-        def max(self,new_max: typing.Union[float,Ref[float]])->"FloatSchema[T]":
+        def less_than(self,new_max: typing.Union[float,Ref[float]])->"FloatSchema[T]":
             pass
 
-        def min(self,new_min: typing.Union[float,Ref[float]])->"FloatSchema[T]":
+        def greater_than(self,new_min: typing.Union[float,Ref[float]])->"FloatSchema[T]":
             pass
     
         def optional(self)->"FloatSchema[typing.Optional[float]]":

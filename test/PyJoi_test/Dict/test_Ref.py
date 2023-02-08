@@ -9,12 +9,12 @@ class TestRef(unittest.TestCase):
             obj=PyJoi.Schema(
                 obj=PyJoi.Schema(
                     value=PyJoi.int(),
-                    value2=PyJoi.int().min(PyJoi.Ref[int]("value"))
+                    value2=PyJoi.int().greater_than(PyJoi.Ref[int]("value"))
                 ),
                 value=PyJoi.int()
             ),
-            value=PyJoi.int().min(PyJoi.Ref[int]("obj.value")),
-            value2=PyJoi.int().min(PyJoi.Ref[int]("obj.obj.value"))
+            value=PyJoi.int().greater_than(PyJoi.Ref[int]("obj.value")),
+            value2=PyJoi.int().greater_than(PyJoi.Ref[int]("obj.obj.value"))
         )
         
         item = schema.validate(
@@ -88,9 +88,9 @@ class TestRef(unittest.TestCase):
                 value=PyJoi.int()
             ),
             container=PyJoi.Schema(
-                value=PyJoi.int().min(PyJoi.Ref[int](".min")).max(PyJoi.Ref[int](".max_obj.value")),
+                value=PyJoi.int().greater_than(PyJoi.Ref[int](".min")).less_than(PyJoi.Ref[int](".max_obj.value")),
                 subContainer=PyJoi.Schema(
-                    value=PyJoi.int().min(PyJoi.Ref[int](".min")).max(PyJoi.Ref[int](".max_obj.value"))
+                    value=PyJoi.int().greater_than(PyJoi.Ref[int](".min")).less_than(PyJoi.Ref[int](".max_obj.value"))
                 )
             )
         )

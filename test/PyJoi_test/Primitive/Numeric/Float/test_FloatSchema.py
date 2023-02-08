@@ -15,16 +15,16 @@ class TestFloatSchema(Common.TestNumericSchema[float,FloatSchema.FloatSchema]):
     def schema_factory(self, name: typing.Optional[str] = None) -> FloatSchema.FloatSchema[float]:
         return PyJoi.float()
 
-    def test_max(self):
-        super(TestFloatSchema,self).test_max()
-        s = PyJoi.float().max(3.2)
+    def test_less_than(self):
+        super(TestFloatSchema,self).test_less_than()
+        s = PyJoi.float().less_than(3.2)
         self.assertEqual(s.validate(3.1),3.1)
         with self.assertRaises(NumericExceptions.InvalidSizeException):
             s.validate(4.3)
     
-    def test_min(self):
-        super(TestFloatSchema,self).test_min()
-        s = PyJoi.float().min(3.2)
+    def test_greater_than(self):
+        super(TestFloatSchema,self).test_greater_than()
+        s = PyJoi.float().greater_than(3.2)
         self.assertEqual(s.validate(3.3),3.3)
         with self.assertRaises(NumericExceptions.InvalidSizeException):
             s.validate(2.3)

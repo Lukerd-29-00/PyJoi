@@ -36,10 +36,10 @@ class IntSchema(typing.Generic[T],NumericSchema.NumericSchema[T]):
         return self
 
     if typing.TYPE_CHECKING:
-        def max(self, new_max: typing.Union[int,Ref[int]])->"IntSchema[T]":
+        def less_than(self, new_max: typing.Union[int,Ref[int]])->"IntSchema[T]":
             pass
 
-        def min(self, new_min: typing.Union[int,Ref[int]])->"IntSchema[T]":
+        def greater_than(self, new_min: typing.Union[int,Ref[int]])->"IntSchema[T]":
             pass
 
         def optional(self)->"IntSchema[typing.Optional[int]]":
