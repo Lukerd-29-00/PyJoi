@@ -1,2 +1,2 @@
 # PyJoi
-A python analogue for the Joi library
+A python analogue for the Joi library (WIP)
