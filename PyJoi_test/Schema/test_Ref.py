@@ -5,9 +5,9 @@ from PyJoi.Primitive.Numeric import Exceptions as IntExceptions
 class TestRef(unittest.TestCase):
 
     def test_relative_resolution(self):
-        schema = PyJoi.Schema("schema",
-            obj=PyJoi.Schema(
-                obj=PyJoi.Schema(
+        schema = PyJoi.dict("schema",
+            obj=PyJoi.dict(
+                obj=PyJoi.dict(
                     value=PyJoi.int(),
                     value2=PyJoi.int().greater_than(PyJoi.Ref[int]("value"))
                 ),
@@ -82,14 +82,14 @@ class TestRef(unittest.TestCase):
             )
 
     def test_absolute_resolution(self):
-        schema = PyJoi.Schema("schema",
+        schema = PyJoi.dict("schema",
             min=PyJoi.int(),
-            max_obj=PyJoi.Schema(
+            max_obj=PyJoi.dict(
                 value=PyJoi.int()
             ),
-            container=PyJoi.Schema(
+            container=PyJoi.dict(
                 value=PyJoi.int().greater_than(PyJoi.Ref[int](".min")).less_than(PyJoi.Ref[int](".max_obj.value")),
-                subContainer=PyJoi.Schema(
+                subContainer=PyJoi.dict(
                     value=PyJoi.int().greater_than(PyJoi.Ref[int](".min")).less_than(PyJoi.Ref[int](".max_obj.value"))
                 )
             )

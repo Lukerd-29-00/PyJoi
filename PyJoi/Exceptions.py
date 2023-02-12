@@ -40,6 +40,10 @@ class ObjectIncorrectKeyException(InvalidElementException):
     """Thrown by Schema.validate if a key is mapped to a nonempty value that does not match the schema somehow."""
     pass
 
+class TupleWrongLengthException(InvalidElementException):
+    """Indicates the Iterable passed to a Tuple schema does not have the length the schema expected."""
+    pass
+
 class ObjectContainsWrongTypeException(ObjectMissingKeyException):
     """Thrown by Schema.validate if a key is mapped to a value of the wrong type."""
     pass

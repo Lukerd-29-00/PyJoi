@@ -1,4 +1,5 @@
-from .SchemaSrc import Schema
+from .Schema.DictSchema import DictSchema as dict
+from .Schema.TupleSchema import TupleSchema as tuple
 from .RefSrc import Ref
 from .Primitive.Str import StrSchema
 from .Primitive.Numeric.Int import IntSchema

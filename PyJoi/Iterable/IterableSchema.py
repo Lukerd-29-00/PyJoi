@@ -2,7 +2,7 @@ from .. import AbstractSchema, Exceptions
 import typing
 from . import Exceptions as IterableExceptions
 import itertools
-from .. import SchemaSrc as Schema
+from ..Schema import Schema as Schema
 
 T = typing.TypeVar("T",bound=typing.Union[typing.Iterable,typing.Optional[typing.Iterable]])
 A = typing.TypeVar("A")

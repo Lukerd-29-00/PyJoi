@@ -3,7 +3,7 @@ import abc
 from .RefSrc import Ref
 from . import Exceptions
 if typing.TYPE_CHECKING:
-    from .SchemaSrc import Schema
+    from .Schema.Schema import Schema
 
 class Empty():
     """This is here as the initial value assigned to each ref before being resolved at runtime. This makes it so that an UnresolvedRefError is raised if the ref is not resolved before its value is needed."""
