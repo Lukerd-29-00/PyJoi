@@ -53,7 +53,7 @@ class IterableSchemaTest(unittest.TestCase,abc.ABC):
         num.validate = is_less
         mx = util.SchemaMock()
         mx.validate.return_value = 12
-        Schema = PyJoi.Schema("schema",
+        Schema = PyJoi.dict("schema",
             lst=self.schema_factory().matches(num), #We can reference 'max' directly because any non-object schemas in a list act as though they were elements of the list's parent for referencing purposes.
             max=mx
         )

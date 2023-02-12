@@ -23,8 +23,8 @@ class AbstractSchema(abc.ABC,typing.Generic[V]):
     _or: typing.Optional["AbstractSchema"] = None
     T = typing.TypeVar("T")
 
-    def __init__(self, name: str):
-        self._name = name
+    def __init__(self, name: typing.Optional[str]):
+        self._name = "<anon>" if name == None else name
         self._depends_on = {}
 
     def optional(self)->"AbstractSchema[typing.Optional[V]]":

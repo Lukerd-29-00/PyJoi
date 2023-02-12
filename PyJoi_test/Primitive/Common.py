@@ -75,7 +75,7 @@ class PrimitiveSchemaTest(typing.Generic[I,O,S],unittest.TestCase,abc.ABC):
         with self.assertRaises(util.TestException):
             s.validate(self.custom_fail)
             
-        s = PyJoi.Schema("s",
+        s = PyJoi.dict("s",
             x=self.schema_factory().custom(self._custom_check_ref,PyJoi.Ref[I]("y")),
             y=self.schema_factory()
         )

@@ -5,9 +5,9 @@ from PyJoi import Exceptions
 import typing
 from .. import util
 
-class TestSchema(unittest.TestCase):
+class TestDictSchema(unittest.TestCase):
     def test_name_inference(self):
-        m = mock.Mock()
+        m = util.SchemaMock()
         s = PyJoi.dict("s",
             a=m
         )

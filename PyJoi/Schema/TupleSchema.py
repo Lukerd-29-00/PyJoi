@@ -6,7 +6,7 @@ from .. import Exceptions
 
 T = typing.TypeVar("T")
 class TupleSchema(typing.Generic[T],Schema.Schema[T]):
-    def __init__(self, name: typing.Optional[str] = None, output_type: typing.Optional[Schema.OutputType[T]] = None,  *args: "AbstractSchema.AbstractSchema"):
+    def __init__(self, *args: "AbstractSchema.AbstractSchema", name: typing.Optional[str] = None):
         """Create a PyJoi Schema.
         
         Args:
@@ -14,7 +14,6 @@ class TupleSchema(typing.Generic[T],Schema.Schema[T]):
             required: Whether or not this schema is required for the enclosing object to be valid. Can be set to False with .optional().
         """
         self._fields = dict([(str(x), schema) for x, schema in zip(itertools.count(),args)])
-        self._output_type = output_type
         super(TupleSchema,self).__init__(name)
 
     def _validate(self, object: any) -> T:
@@ -27,7 +26,7 @@ class TupleSchema(typing.Generic[T],Schema.Schema[T]):
         elif len(object) != len(self._fields):
             raise Exceptions.TupleWrongLengthException(self._name,f"Expected iterable of length {len(self._fields)}, got {len(object)}")
         data = super(TupleSchema,self)._validate(dict([(str(key), value) for key, value in zip(itertools.count(),object)]))
-        if self._output_type != None:
-            return self._output_type(**data)
-        else:
-            return tuple(object)
+        output = []
+        for i in range(len(object)):
+            output.append(data[str(i)])
+        return tuple(output)

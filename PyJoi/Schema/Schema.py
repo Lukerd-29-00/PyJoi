@@ -6,10 +6,13 @@ import abc as abstract
 
 def value_from_path(path: typing.List[str], data: typing.Dict[str,any]):
         item = data
-        for i in range(len(path)):
-            item = item[path[i]]
-            if i != len(path)-1 and not isinstance(item,dict):
-                item = dict(item._asdict())
+        for part in path:
+            if isinstance(item,dict):
+                item = item[part]
+            elif isinstance(item, tuple):
+                item = item[int(part)]
+            else:
+                item = item._asdict()[part]
         return item
 
 S = typing.TypeVar("S",bound=abc.Hashable)
@@ -96,6 +99,8 @@ class Schema(typing.Generic[T],AbstractSchema[T],abstract.ABC):
             self._fields[k]._name = k
             self._fields[k]._parent = self
             self._fields[k]._add_parent_refs()
+
+        
 
     def _validate(self,object: typing.Dict[str,any])->typing.Dict:
         """Validate an object (Python dictionary from strings to anything that can be represented by another Schema).
