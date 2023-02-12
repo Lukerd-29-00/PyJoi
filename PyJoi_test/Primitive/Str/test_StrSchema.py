@@ -103,3 +103,10 @@ class TestStrSchema(Common.PrimitiveSchemaTest[str,str,StrSchema.StrSchema]):
             s.validate("/BCD")
         with self.assertRaises(Exceptions.InvalidBase64Exception):
             s.validate("+BCD")
+
+    def test_encoding(self):
+        s = PyJoi.str().encoding("utf-8")
+        self.assertEqual(s.validate(b"abc"),'abc')
+        self.assertEqual(s.validate("abc"),"abc")
+        with self.assertRaises(Exceptions.NotAStringException):
+            PyJoi.str().validate(b"abc")

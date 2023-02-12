@@ -14,6 +14,18 @@ PaddedUrlSafeB64Pattern = re.compile(r"^(?:[A-Za-z0-9\-_]{4})*(?:[A-Za-z0-9\-_]{
 UnPaddedUrlSafeB64Pattern = re.compile(r"^(?:[A-Za-z0-9\-_]{4})*(?:[A-Za-z0-9\-_]{2,3})?$")
 
 class StrSchema(typing.Generic[T],PrimitiveSchema[T]):
+    _encoded: bool = False
+    def _decode(self, data: typing.Union[str,bytes], encoding: str)->str:
+        if isinstance(data,bytes):
+            return data.decode(encoding=encoding)
+        else:
+            return data
+
+    def encoding(self, encoding: str)->"StrSchema[T]":
+        self._encoded = True
+        self._checks.insert(0,lambda value: self._decode(value,encoding))
+        return self
+
     def _matches(self,string: str, pattern: re.Pattern)->str:
         if re.match(pattern,string) != None:
             return string
@@ -59,9 +71,9 @@ class StrSchema(typing.Generic[T],PrimitiveSchema[T]):
         return Base64Schema(self._name)
 
     def _validate(self,value: any)->T:
-        if not isinstance(value,str) and value != None:
-            raise Exceptions.NotAStringException(self._name,f"expected a string, got {value}")
-        return super(StrSchema,self)._validate(value)
+        if isinstance(value,bytes) and self._encoded or isinstance(value,str) or value == None:
+            return super(StrSchema,self)._validate(value)
+        raise Exceptions.NotAStringException(self._name,f"expected a string, got {value}")
 
     if typing.TYPE_CHECKING:
         def optional(self)->"StrSchema[typing.Optional[str]]":
