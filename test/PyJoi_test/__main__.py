@@ -1,3 +1,9 @@
 import unittest
-suite = unittest.defaultTestLoader.discover("PyJoi_test","test_*")
-unittest.TextTestRunner().run(suite)
+
+suite1 = unittest.defaultTestLoader.discover("PyJoi_test.Primitive","test_*")
+suite2 = unittest.defaultTestLoader.discover("PyJoi_test.Iterable","test_*")
+suite3 = unittest.defaultTestLoader.discover("PyJoi_test.Dict","test_*")
+runner = unittest.TextTestRunner()
+runner.run(suite1)
+runner.run(suite2)
+runner.run(suite3)
